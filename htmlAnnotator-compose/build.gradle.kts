@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.ravenl.htmlannotator.core"
+    namespace = "com.ravenl.htmlannotator.compose"
     compileSdk = property("compileSdk").toString().toInt()
 
     defaultConfig {
-        minSdk = property("minSdk").toString().toInt()
+        minSdk = property("composeMinSdk").toString().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -31,11 +31,24 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+    }
 }
 
 dependencies {
-    implementation(libs.jsoup)
+    api(project(":htmlAnnotator-core"))
+    implementation(platform(libs.compose.bom))
+    api(libs.compose.foundation)
 
+    implementation(libs.ui.tooling.preview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.android.test)
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation(libs.ui.test.junit4)
+    debugImplementation(libs.ui.tooling)
+    debugImplementation(libs.ui.test.manifest)
 }

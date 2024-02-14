@@ -6,14 +6,14 @@ plugins {
 
 android {
     namespace = "com.ravenL.htmlannotator"
-    compileSdk = 34
+    compileSdk = property("compileSdk").toString().toInt()
 
     defaultConfig {
         applicationId = "com.ravenL.htmlannotator"
-        minSdk = 21
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        minSdk = property("composeMinSdk").toString().toInt()
+        targetSdk = compileSdk
+        versionCode = property("versionCode").toString().toInt()
+        versionName = property("versionName").toString()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -41,7 +41,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
     packaging {
         resources {
@@ -59,10 +59,9 @@ dependencies {
     implementation(libs.ui)
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
-    implementation(libs.material3)
+    implementation(libs.compose.material3)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.bundles.android.test)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)
