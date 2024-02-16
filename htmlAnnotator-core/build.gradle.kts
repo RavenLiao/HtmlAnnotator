@@ -34,7 +34,7 @@ android {
 }
 
 dependencies {
-    implementation(libs.jsoup)
+    api(libs.jsoup)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.android.test)
