@@ -21,6 +21,7 @@ import com.ravenl.htmlannotator.compose.handler.SpanTextHandler
 import com.ravenl.htmlannotator.compose.styler.AnnotatedTagStyler
 import com.ravenl.htmlannotator.core.handler.NewLineHandler
 import com.ravenl.htmlannotator.core.handler.TagHandler
+import com.ravenl.htmlannotator.core.handler.ParagraphHandler
 import com.ravenl.htmlannotator.core.toHtmlAnnotation
 import com.ravenl.htmlannotator.core.util.Logger
 import org.jsoup.Jsoup
@@ -105,7 +106,7 @@ class HtmlAnnotator(
         registerHandler("br", brHandler)
 
 
-        val pHandler = SpanTextHandler { SpanStyle() }
+        val pHandler = ParagraphHandler()
 
         registerHandler("p", pHandler)
         registerHandler("div", pHandler)

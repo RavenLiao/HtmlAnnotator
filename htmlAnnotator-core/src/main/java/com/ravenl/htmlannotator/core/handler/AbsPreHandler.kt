@@ -4,18 +4,7 @@ import com.ravenl.htmlannotator.core.TagStyler
 import com.ravenl.htmlannotator.core.util.appendNewLine
 import org.jsoup.nodes.Node
 
-abstract class AbsPreHandler(private val isStripExtraWhiteSpace: Boolean) : TagHandler() {
-    override fun beforeChildren(
-        builder: StringBuilder,
-        rangeList: MutableList<TagStyler>,
-        node: Node
-    ) {
-        if (builder.isNotEmpty()) {
-            if (builder[builder.length - 1] != '\n') {
-                builder.append('\n')
-            }
-        }
-    }
+abstract class AbsPreHandler(private val isStripExtraWhiteSpace: Boolean) : ParagraphHandler() {
 
     override fun handleTagNode(
         builder: StringBuilder,
