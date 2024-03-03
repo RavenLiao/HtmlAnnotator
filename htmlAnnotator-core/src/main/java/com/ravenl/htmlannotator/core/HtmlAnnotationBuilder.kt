@@ -1,9 +1,12 @@
 package com.ravenl.htmlannotator.core
 
+import com.ravenl.htmlannotator.core.css.CSSStyleBlock
+import com.ravenl.htmlannotator.core.css.parseCssDeclarations
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
+import java.util.Stack
 
 
 fun toHtmlAnnotation(
@@ -13,13 +16,15 @@ fun toHtmlAnnotation(
     val body = doc.body()
     val stringBuilder = StringBuilder()
     val rangeList = mutableListOf<TagStyler>()
-    applySpan(stringBuilder, rangeList, handles, body)
-    return HtmlAnnotation(stringBuilder.toString(), rangeList)
+    val cssStack = Stack<CSSStyleBlock>()
+    applySpan(stringBuilder, rangeList, cssStack, handles, body)
+    return HtmlAnnotation(stringBuilder.toString(), rangeList, cssStack)
 }
 
 private fun applySpan(
     builder: StringBuilder,
     rangeList: MutableList<TagStyler>,
+    cssStack: Stack<CSSStyleBlock>,
     handles: Map<String, TagHandler>,
     node: Node
 ) {
@@ -33,12 +38,20 @@ private fun applySpan(
             if (childNode is TextNode) {
                 builder.append(childNode.text())
             } else {
-                applySpan(builder, rangeList, handles, childNode)
+                applySpan(builder, rangeList, cssStack, handles, childNode)
             }
         }
     }
 
     val lengthAfter = builder.length
     handler?.handleTagNode(builder, rangeList, node, lengthBefore, lengthAfter)
+
+    node.attr("style").ifBlank { null }?.let { inlineCss ->
+        inlineCss.let(::parseCssDeclarations)?.let {
+            CSSStyleBlock(lengthBefore, builder.length, it)
+        }
+    }?.also { block ->
+        cssStack.push(block)
+    }
 }
 

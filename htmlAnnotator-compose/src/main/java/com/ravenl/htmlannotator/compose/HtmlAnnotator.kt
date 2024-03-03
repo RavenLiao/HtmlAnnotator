@@ -11,6 +11,8 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.em
+import com.ravenl.htmlannotator.compose.css.CSSHandler
+import com.ravenl.htmlannotator.compose.css.ColorCssHandler
 import com.ravenl.htmlannotator.compose.handler.ImageAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.LinkAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.ParagraphTextHandler
@@ -20,6 +22,7 @@ import com.ravenl.htmlannotator.compose.styler.AnnotatedTagStyler
 import com.ravenl.htmlannotator.core.handler.NewLineHandler
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import com.ravenl.htmlannotator.core.toHtmlAnnotation
+import com.ravenl.htmlannotator.core.util.Logger
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.InputStream
@@ -30,8 +33,11 @@ class HtmlAnnotator(
 
     private val handlers = ArrayMap<String, TagHandler>()
 
+    private val cssHandlers = ArrayMap<String, CSSHandler>()
+
     init {
         registerBuiltInHandlers()
+        registerBuiltInCssHandlers()
     }
 
     fun registerHandler(tagName: String, handler: TagHandler) {
@@ -42,18 +48,34 @@ class HtmlAnnotator(
         handlers.remove(tagName)
     }
 
+    fun registerCssHandler(property: String, handler: CSSHandler) {
+        cssHandlers[property] = handler
+    }
+
+    fun unregisterCssHandler(property: String) {
+        cssHandlers.remove(property)
+    }
+
     fun from(input: InputStream, baseUri: String = "", charsetName: String? = null) =
         from(Jsoup.parse(input, charsetName, baseUri))
 
     fun from(html: String, baseUri: String = "") = from(Jsoup.parse(html, baseUri))
 
     fun from(doc: Document): AnnotatedString {
-        val (body, tags) = toHtmlAnnotation(doc, handlers)
+        val (body, tags, cssBlocks) = toHtmlAnnotation(doc, handlers)
         return AnnotatedString.Builder(body.length).apply {
             append(body)
             tags.forEach { tag ->
                 tag as AnnotatedTagStyler
                 tag.addStyle(this)
+            }
+
+            cssBlocks.forEach { block ->
+                block.declarations.forEach { declaration ->
+                    with(declaration) {
+                        cssHandlers[property]?.addCss(this@apply, block.start, block.end, value)
+                    }
+                }
             }
         }.toAnnotatedString()
     }
@@ -143,5 +165,13 @@ class HtmlAnnotator(
 
         registerHandler("a", LinkAnnotatedHandler())
         registerHandler("img", ImageAnnotatedHandler())
+    }
+
+    private fun registerBuiltInCssHandlers() {
+        registerCssHandler("color", ColorCssHandler())
+    }
+
+    companion object {
+        val logger by lazy { Logger() }
     }
 }
