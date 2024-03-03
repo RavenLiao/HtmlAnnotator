@@ -20,8 +20,8 @@ import com.ravenl.htmlannotator.compose.handler.PreAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.SpanTextHandler
 import com.ravenl.htmlannotator.compose.styler.AnnotatedTagStyler
 import com.ravenl.htmlannotator.core.handler.NewLineHandler
-import com.ravenl.htmlannotator.core.handler.TagHandler
 import com.ravenl.htmlannotator.core.handler.ParagraphHandler
+import com.ravenl.htmlannotator.core.handler.TagHandler
 import com.ravenl.htmlannotator.core.toHtmlAnnotation
 import com.ravenl.htmlannotator.core.util.Logger
 import org.jsoup.Jsoup
@@ -29,7 +29,9 @@ import org.jsoup.nodes.Document
 import java.io.InputStream
 
 class HtmlAnnotator(
-    val isStripExtraWhiteSpace: Boolean = true
+    preTagHandlers: Map<String, TagHandler>? = defaultPreTagHandlers,
+    preCSSHandlers: Map<String, CSSHandler>? = defaultPreCSSHandlers,
+    val isStripExtraWhiteSpace: Boolean = defaultIsStripExtraWhiteSpace
 ) {
 
     private val handlers = ArrayMap<String, TagHandler>()
@@ -37,8 +39,8 @@ class HtmlAnnotator(
     private val cssHandlers = ArrayMap<String, CSSHandler>()
 
     init {
-        registerBuiltInHandlers()
-        registerBuiltInCssHandlers()
+        registerBuiltInHandlers(preTagHandlers)
+        registerBuiltInCssHandlers(preCSSHandlers)
     }
 
     fun registerHandler(tagName: String, handler: TagHandler) {
@@ -81,98 +83,143 @@ class HtmlAnnotator(
         }.toAnnotatedString()
     }
 
-    private fun registerBuiltInHandlers() {
-        val italicHandler = SpanTextHandler { SpanStyle(fontStyle = FontStyle.Italic) }
+    private fun registerBuiltInHandlers(pre: Map<String, TagHandler>?) {
+        pre?.also { map ->
+            handlers.putAll(map)
+        }
 
-        registerHandler("i", italicHandler)
-        registerHandler("em", italicHandler)
-        registerHandler("cite", italicHandler)
-        registerHandler("dfn", italicHandler)
+        fun registerHandlerIfAbsent(tag: String, getHandler: () -> TagHandler) {
+            if (pre?.containsKey(tag) != true) {
+                registerHandler(tag, getHandler())
+            }
+        }
 
-        val boldHandler = SpanTextHandler { SpanStyle(fontWeight = FontWeight.Bold) }
 
-        registerHandler("b", boldHandler)
-        registerHandler("strong", boldHandler)
+        val italicHandler by lazy {
+            SpanTextHandler { SpanStyle(fontStyle = FontStyle.Italic) }
+        }
 
-        val marginHandler =
+        registerHandlerIfAbsent("i") { italicHandler }
+        registerHandlerIfAbsent("em") { italicHandler }
+        registerHandlerIfAbsent("cite") { italicHandler }
+        registerHandlerIfAbsent("dfn") { italicHandler }
+
+        val boldHandler by lazy {
+            SpanTextHandler { SpanStyle(fontWeight = FontWeight.Bold) }
+        }
+
+        registerHandlerIfAbsent("b") { boldHandler }
+        registerHandlerIfAbsent("strong") { boldHandler }
+
+        registerHandlerIfAbsent("blockquote") {
             ParagraphTextHandler { ParagraphStyle(textIndent = TextIndent(30.em, 30.em)) }
+        }
 
-        registerHandler("blockquote", marginHandler)
-        registerHandler("ul", marginHandler)
-        registerHandler("ol", marginHandler)
-
-        val brHandler = NewLineHandler(isStripExtraWhiteSpace, 1)
-
-        registerHandler("br", brHandler)
+        registerHandlerIfAbsent("br") { NewLineHandler(isStripExtraWhiteSpace, 1) }
 
 
-        val pHandler = ParagraphHandler()
+        val pHandler by lazy(boldHandler) { ParagraphHandler() }
 
-        registerHandler("p", pHandler)
-        registerHandler("div", pHandler)
-
-
-        registerHandler("h1", SpanTextHandler {
-            SpanStyle(fontWeight = FontWeight.Bold, fontSize = 2.em)
-        })
-        registerHandler("h2", SpanTextHandler {
-            SpanStyle(fontWeight = FontWeight.Bold, fontSize = 1.5.em)
-        })
-        registerHandler("h3", SpanTextHandler {
-            SpanStyle(fontWeight = FontWeight.Bold, fontSize = 1.17.em)
-        })
-        registerHandler("h4", SpanTextHandler {
-            SpanStyle(fontWeight = FontWeight.Bold, fontSize = 1.em)
-        })
-        registerHandler("h5", SpanTextHandler {
-            SpanStyle(fontWeight = FontWeight.Bold, fontSize = 0.83.em)
-        })
-        registerHandler("h6", SpanTextHandler {
-            SpanStyle(fontWeight = FontWeight.Bold, fontSize = 0.67.em)
-        })
+        registerHandlerIfAbsent("p") { pHandler }
+        registerHandlerIfAbsent("div") { pHandler }
 
 
-        registerHandler("tt", SpanTextHandler {
-            SpanStyle(fontFamily = FontFamily.Monospace)
-        })
+        registerHandlerIfAbsent("h1") {
+            SpanTextHandler {
+                SpanStyle(fontWeight = FontWeight.Bold, fontSize = 2.em)
+            }
+        }
+        registerHandlerIfAbsent("h2") {
+            SpanTextHandler {
+                SpanStyle(fontWeight = FontWeight.Bold, fontSize = 1.5.em)
+            }
+        }
+        registerHandlerIfAbsent("h3") {
+            SpanTextHandler {
+                SpanStyle(fontWeight = FontWeight.Bold, fontSize = 1.17.em)
+            }
+        }
+        registerHandlerIfAbsent("h4") {
+            SpanTextHandler {
+                SpanStyle(fontWeight = FontWeight.Bold, fontSize = 1.em)
+            }
+        }
+        registerHandlerIfAbsent("h5") {
+            SpanTextHandler {
+                SpanStyle(fontWeight = FontWeight.Bold, fontSize = 0.83.em)
+            }
+        }
+        registerHandlerIfAbsent("h6") {
+            SpanTextHandler {
+                SpanStyle(fontWeight = FontWeight.Bold, fontSize = 0.67.em)
+            }
+        }
 
 
-        registerHandler("pre", PreAnnotatedHandler(isStripExtraWhiteSpace))
+        registerHandlerIfAbsent("tt") {
+            SpanTextHandler {
+                SpanStyle(fontFamily = FontFamily.Monospace)
+            }
+        }
 
 
-        registerHandler("big", SpanTextHandler {
-            SpanStyle(fontWeight = FontWeight.Bold, fontSize = 1.25.em)
-        })
-
-        registerHandler("small", SpanTextHandler {
-            SpanStyle(fontWeight = FontWeight.Bold, fontSize = 0.8.em)
-        })
+        registerHandlerIfAbsent("pre") { PreAnnotatedHandler(isStripExtraWhiteSpace) }
 
 
-        registerHandler("sub", SpanTextHandler {
-            SpanStyle(baselineShift = BaselineShift.Subscript, fontSize = 0.7.em)
-        })
+        registerHandlerIfAbsent("big") {
+            SpanTextHandler {
+                SpanStyle(fontWeight = FontWeight.Bold, fontSize = 1.25.em)
+            }
+        }
 
-        registerHandler("sup", SpanTextHandler {
-            SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 0.7.em)
-        })
-
-
-        registerHandler("center", ParagraphTextHandler {
-            ParagraphStyle(textAlign = TextAlign.Center)
-        })
-
+        registerHandlerIfAbsent("small") {
+            SpanTextHandler {
+                SpanStyle(fontWeight = FontWeight.Bold, fontSize = 0.8.em)
+            }
+        }
 
 
-        registerHandler("a", LinkAnnotatedHandler())
-        registerHandler("img", ImageAnnotatedHandler())
+        registerHandlerIfAbsent("sub") {
+            SpanTextHandler {
+                SpanStyle(baselineShift = BaselineShift.Subscript, fontSize = 0.7.em)
+            }
+        }
+
+        registerHandlerIfAbsent("sup") {
+            SpanTextHandler {
+                SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 0.7.em)
+            }
+        }
+
+
+        registerHandlerIfAbsent("center") {
+            ParagraphTextHandler { ParagraphStyle(textAlign = TextAlign.Center) }
+        }
+
+
+
+        registerHandlerIfAbsent("a") { LinkAnnotatedHandler() }
+        registerHandlerIfAbsent("img") { ImageAnnotatedHandler() }
     }
 
-    private fun registerBuiltInCssHandlers() {
-        registerCssHandler("color", ColorCssHandler())
+    private fun registerBuiltInCssHandlers(pre: Map<String, CSSHandler>?) {
+        pre?.also { map ->
+            cssHandlers.putAll(map)
+        }
+
+        fun registerHandlerIfAbsent(tag: String, getHandler: () -> CSSHandler) {
+            if (pre?.containsKey(tag) != true) {
+                registerCssHandler(tag, getHandler())
+            }
+        }
+
+        registerHandlerIfAbsent("color") { ColorCssHandler() }
     }
 
     companion object {
         val logger by lazy { Logger() }
+        var defaultPreTagHandlers: Map<String, TagHandler>? = null
+        var defaultPreCSSHandlers: Map<String, CSSHandler>? = null
+        var defaultIsStripExtraWhiteSpace: Boolean = true
     }
 }
