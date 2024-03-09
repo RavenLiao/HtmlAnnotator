@@ -59,13 +59,22 @@ class HtmlAnnotator(
         cssHandlers.remove(property)
     }
 
-    fun from(input: InputStream, baseUri: String = "", charsetName: String? = null) =
-        from(Jsoup.parse(input, charsetName, baseUri))
+    suspend fun from(
+        input: InputStream, baseUri: String = "", charsetName: String? = null,
+        getExternalCSS: (suspend (link: String) -> String)? = null
+    ) = from(Jsoup.parse(input, charsetName, baseUri), getExternalCSS)
 
-    fun from(html: String, baseUri: String = "") = from(Jsoup.parse(html, baseUri))
+    suspend fun from(
+        html: String,
+        baseUri: String = "",
+        getExternalCSS: (suspend (link: String) -> String)? = null
+    ) = from(Jsoup.parse(html, baseUri), getExternalCSS)
 
-    fun from(doc: Document): AnnotatedString {
-        val (body, tags, cssBlocks) = toHtmlAnnotation(doc, handlers)
+    suspend fun from(
+        doc: Document,
+        getExternalCSS: (suspend (link: String) -> String)? = null
+    ): AnnotatedString {
+        val (body, tags, cssBlocks) = toHtmlAnnotation(doc, handlers, logger, getExternalCSS)
         return AnnotatedString.Builder(body.length).apply {
             append(body)
             tags.forEach { tag ->
