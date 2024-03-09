@@ -60,7 +60,37 @@ suspend fun toHtmlAnnotation(
         null
     }
 
-    applySpan(stringBuilder, rangeList, cssStack, handles, body, cssMap)
+    val stack = Stack<Node>()
+    stack.push(body)
+
+    while (stack.isNotEmpty()) {
+        yield()
+        val currentNode = stack.pop()
+        val handler = handles[currentNode.nodeName()]
+
+        val lengthBefore = stringBuilder.length
+        handler?.beforeChildren(stringBuilder, rangeList, currentNode)
+
+        if (handler?.handlerRendersContent() != true) {
+            val childNodes = currentNode.childNodes()
+            for (i in childNodes.size - 1 downTo 0) {
+                val childNode = childNodes[i]
+                if (childNode is TextNode) {
+                    stringBuilder.append(childNode.text())
+                } else {
+                    stack.push(childNode)
+                }
+            }
+        }
+
+        val lengthAfter = stringBuilder.length
+        handler?.handleTagNode(stringBuilder, rangeList, currentNode, lengthBefore, lengthAfter)
+
+        buildFinalCSS(cssMap, currentNode)?.also { list ->
+            cssStack.push(CSSStyleBlock(lengthBefore, stringBuilder.length, list))
+        }
+    }
+
     HtmlAnnotation(stringBuilder.toString(), rangeList, cssStack)
 }
 
@@ -81,38 +111,6 @@ private fun buildInternalCSSBlock(doc: Document): List<CSSRuleSet>? =
     parseCssRuleBlock(StyleOrigin.INTERNAL, doc.select("style").joinToString("\n") {
         it.html()
     }).ifEmpty { null }
-
-
-private fun applySpan(
-    builder: StringBuilder,
-    rangeList: MutableList<TagStyler>,
-    cssStack: Stack<CSSStyleBlock>,
-    handles: Map<String, TagHandler>,
-    node: Node,
-    cssMap: Map<Element, MutableList<CSSRuleSet>>?
-) {
-    val handler = handles[node.nodeName()]
-
-    val lengthBefore = builder.length
-    handler?.beforeChildren(builder, rangeList, node)
-
-    if (handler?.handlerRendersContent() != true) {
-        for (childNode in node.childNodes()) {
-            if (childNode is TextNode) {
-                builder.append(childNode.text())
-            } else {
-                applySpan(builder, rangeList, cssStack, handles, childNode, cssMap)
-            }
-        }
-    }
-
-    val lengthAfter = builder.length
-    handler?.handleTagNode(builder, rangeList, node, lengthBefore, lengthAfter)
-
-    buildFinalCSS(cssMap, node)?.also { list ->
-        cssStack.push(CSSStyleBlock(lengthBefore, builder.length, list))
-    }
-}
 
 private fun buildFinalCSS(
     cssMap: Map<Element, MutableList<CSSRuleSet>>?,
