@@ -11,8 +11,8 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.em
-import com.ravenl.htmlannotator.compose.css.CSSHandler
-import com.ravenl.htmlannotator.compose.css.ColorCssHandler
+import com.ravenl.htmlannotator.compose.css.CSSAnnotatedHandler
+import com.ravenl.htmlannotator.compose.css.ColorCssAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.ImageAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.LinkAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.ParagraphTextHandler
@@ -30,13 +30,13 @@ import java.io.InputStream
 
 class HtmlAnnotator(
     preTagHandlers: Map<String, TagHandler>? = defaultPreTagHandlers,
-    preCSSHandlers: Map<String, CSSHandler>? = defaultPreCSSHandlers,
+    preCSSHandlers: Map<String, CSSAnnotatedHandler>? = defaultPreCSSHandlers,
     val isStripExtraWhiteSpace: Boolean = defaultIsStripExtraWhiteSpace
 ) {
 
     private val handlers = ArrayMap<String, TagHandler>()
 
-    private val cssHandlers = ArrayMap<String, CSSHandler>()
+    private val cssHandlers = ArrayMap<String, CSSAnnotatedHandler>()
 
     init {
         registerBuiltInHandlers(preTagHandlers)
@@ -51,7 +51,7 @@ class HtmlAnnotator(
         handlers.remove(tagName)
     }
 
-    fun registerCssHandler(property: String, handler: CSSHandler) {
+    fun registerCssHandler(property: String, handler: CSSAnnotatedHandler) {
         cssHandlers[property] = handler
     }
 
@@ -211,24 +211,24 @@ class HtmlAnnotator(
         registerHandlerIfAbsent("img") { ImageAnnotatedHandler() }
     }
 
-    private fun registerBuiltInCssHandlers(pre: Map<String, CSSHandler>?) {
+    private fun registerBuiltInCssHandlers(pre: Map<String, CSSAnnotatedHandler>?) {
         pre?.also { map ->
             cssHandlers.putAll(map)
         }
 
-        fun registerHandlerIfAbsent(tag: String, getHandler: () -> CSSHandler) {
+        fun registerHandlerIfAbsent(tag: String, getHandler: () -> CSSAnnotatedHandler) {
             if (pre?.containsKey(tag) != true) {
                 registerCssHandler(tag, getHandler())
             }
         }
 
-        registerHandlerIfAbsent("color") { ColorCssHandler() }
+        registerHandlerIfAbsent("color") { ColorCssAnnotatedHandler() }
     }
 
     companion object {
         val logger by lazy { Logger() }
         var defaultPreTagHandlers: Map<String, TagHandler>? = null
-        var defaultPreCSSHandlers: Map<String, CSSHandler>? = null
+        var defaultPreCSSHandlers: Map<String, CSSAnnotatedHandler>? = null
         var defaultIsStripExtraWhiteSpace: Boolean = true
     }
 }
