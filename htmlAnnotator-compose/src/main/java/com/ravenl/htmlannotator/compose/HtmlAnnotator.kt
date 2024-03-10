@@ -11,8 +11,15 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.em
+import com.ravenl.htmlannotator.compose.css.BackgroundColorCssAnnotatedHandler
 import com.ravenl.htmlannotator.compose.css.CSSAnnotatedHandler
 import com.ravenl.htmlannotator.compose.css.ColorCssAnnotatedHandler
+import com.ravenl.htmlannotator.compose.css.FontSizeCssAnnotatedHandler
+import com.ravenl.htmlannotator.compose.css.FontStyleCssAnnotatedHandler
+import com.ravenl.htmlannotator.compose.css.FontWeightCssAnnotatedHandler
+import com.ravenl.htmlannotator.compose.css.TextAlignCssAnnotatedHandler
+import com.ravenl.htmlannotator.compose.css.TextDecorationCssAnnotatedHandler
+import com.ravenl.htmlannotator.compose.css.TextIndentCssAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.ImageAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.LinkAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.ParagraphTextHandler
@@ -222,7 +229,15 @@ class HtmlAnnotator(
             }
         }
 
+        registerHandlerIfAbsent("text-align") { TextAlignCssAnnotatedHandler() }
+        registerHandlerIfAbsent("font-size") { FontSizeCssAnnotatedHandler() }
+        registerHandlerIfAbsent("font-weight") { FontWeightCssAnnotatedHandler() }
+        registerHandlerIfAbsent("font-style") { FontStyleCssAnnotatedHandler() }
         registerHandlerIfAbsent("color") { ColorCssAnnotatedHandler() }
+        registerHandlerIfAbsent("background-color") { BackgroundColorCssAnnotatedHandler() }
+        registerHandlerIfAbsent("text-indent") { TextIndentCssAnnotatedHandler() }
+        registerHandlerIfAbsent("text-decoration") { TextDecorationCssAnnotatedHandler() }
+
     }
 
     companion object {
