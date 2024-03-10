@@ -36,6 +36,7 @@ android {
 dependencies {
     api(libs.jsoup)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.annotation.jvm)
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.android.test)
 }
