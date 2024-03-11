@@ -11,6 +11,7 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import com.ravenl.htmlannotator.compose.css.BackgroundColorCssAnnotatedHandler
 import com.ravenl.htmlannotator.compose.css.CSSAnnotatedHandler
 import com.ravenl.htmlannotator.compose.css.ColorCssAnnotatedHandler
@@ -85,8 +86,14 @@ class HtmlAnnotator(
         return AnnotatedString.Builder(body.length).apply {
             append(body)
             tags.forEach { tag ->
-                tag as AnnotatedTagStyler
-                tag.addStyle(this)
+                val styler = tag as? AnnotatedTagStyler
+                if (styler != null) {
+                    tag.addStyle(this)
+                } else {
+                    logger.e(TAG) {
+                        "TagStyler is not AnnotatedTagStyler: $tag"
+                    }
+                }
             }
 
             cssBlocks.forEach { block ->
@@ -112,7 +119,7 @@ class HtmlAnnotator(
 
 
         val italicHandler by lazy {
-            SpanTextHandler { SpanStyle(fontStyle = FontStyle.Italic) }
+            SpanTextHandler(false) { SpanStyle(fontStyle = FontStyle.Italic) }
         }
 
         registerHandlerIfAbsent("i") { italicHandler }
@@ -121,14 +128,14 @@ class HtmlAnnotator(
         registerHandlerIfAbsent("dfn") { italicHandler }
 
         val boldHandler by lazy {
-            SpanTextHandler { SpanStyle(fontWeight = FontWeight.Bold) }
+            SpanTextHandler(false) { SpanStyle(fontWeight = FontWeight.Bold) }
         }
 
         registerHandlerIfAbsent("b") { boldHandler }
         registerHandlerIfAbsent("strong") { boldHandler }
 
         registerHandlerIfAbsent("blockquote") {
-            ParagraphTextHandler { ParagraphStyle(textIndent = TextIndent(30.em, 30.em)) }
+            ParagraphTextHandler { ParagraphStyle(textIndent = TextIndent(30.sp, 30.sp)) }
         }
 
         registerHandlerIfAbsent("br") { NewLineHandler(isStripExtraWhiteSpace, 1) }
@@ -183,26 +190,26 @@ class HtmlAnnotator(
 
 
         registerHandlerIfAbsent("big") {
-            SpanTextHandler {
+            SpanTextHandler(false) {
                 SpanStyle(fontWeight = FontWeight.Bold, fontSize = 1.25.em)
             }
         }
 
         registerHandlerIfAbsent("small") {
-            SpanTextHandler {
+            SpanTextHandler(false) {
                 SpanStyle(fontWeight = FontWeight.Bold, fontSize = 0.8.em)
             }
         }
 
 
         registerHandlerIfAbsent("sub") {
-            SpanTextHandler {
+            SpanTextHandler(false) {
                 SpanStyle(baselineShift = BaselineShift.Subscript, fontSize = 0.7.em)
             }
         }
 
         registerHandlerIfAbsent("sup") {
-            SpanTextHandler {
+            SpanTextHandler(false) {
                 SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 0.7.em)
             }
         }
@@ -241,6 +248,8 @@ class HtmlAnnotator(
     }
 
     companion object {
+        private const val TAG = "HtmlAnnotator"
+
         val logger by lazy { Logger() }
         var defaultPreTagHandlers: Map<String, TagHandler>? = null
         var defaultPreCSSHandlers: Map<String, CSSAnnotatedHandler>? = null

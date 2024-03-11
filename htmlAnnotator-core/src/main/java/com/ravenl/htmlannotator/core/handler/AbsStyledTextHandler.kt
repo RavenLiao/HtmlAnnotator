@@ -3,8 +3,19 @@ package com.ravenl.htmlannotator.core.handler
 import com.ravenl.htmlannotator.core.TagStyler
 import org.jsoup.nodes.Node
 
-abstract class AbsStyledTextHandler : ParagraphHandler() {
+abstract class AbsStyledTextHandler(private val addNewLineAtBefore: Boolean = true) : TagHandler() {
 
+    override fun beforeChildren(
+        builder: StringBuilder,
+        rangeList: MutableList<TagStyler>,
+        node: Node
+    ) {
+        if (addNewLineAtBefore && builder.isNotEmpty()) {
+            if (builder[builder.length - 1] != '\n') {
+                builder.append('\n')
+            }
+        }
+    }
 
     override fun handleTagNode(
         builder: StringBuilder,

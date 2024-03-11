@@ -6,7 +6,8 @@ import com.ravenl.htmlannotator.core.TagStyler
 import com.ravenl.htmlannotator.core.handler.AbsStyledTextHandler
 import org.jsoup.nodes.Node
 
-class SpanTextHandler(val newSpanStyle: () -> SpanStyle) : AbsStyledTextHandler() {
+class SpanTextHandler(addNewLineAtBefore: Boolean = true, val newSpanStyle: () -> SpanStyle) :
+    AbsStyledTextHandler(addNewLineAtBefore) {
 
     private val spanStyle by lazy { newSpanStyle() }
 
