@@ -60,36 +60,32 @@ suspend fun toHtmlAnnotation(
         null
     }
 
-    val stack = Stack<Node>()
-    stack.push(body)
-
-    while (stack.isNotEmpty()) {
+    suspend fun handleNode(node: Node) {
         yield()
-        val currentNode = stack.pop()
-        val handler = handles[currentNode.nodeName()]
+        val handler = handles[node.nodeName()]
 
         val lengthBefore = stringBuilder.length
-        handler?.beforeChildren(stringBuilder, rangeList, currentNode)
+        handler?.beforeChildren(stringBuilder, rangeList, node)
 
         if (handler?.handlerRendersContent() != true) {
-            val childNodes = currentNode.childNodes()
-            for (i in childNodes.size - 1 downTo 0) {
-                val childNode = childNodes[i]
+            for (childNode in node.childNodes()) {
                 if (childNode is TextNode) {
                     stringBuilder.append(childNode.text())
                 } else {
-                    stack.push(childNode)
+                    handleNode(childNode)
                 }
             }
         }
 
         val lengthAfter = stringBuilder.length
-        handler?.handleTagNode(stringBuilder, rangeList, currentNode, lengthBefore, lengthAfter)
+        handler?.handleTagNode(stringBuilder, rangeList, node, lengthBefore, lengthAfter)
 
-        buildFinalCSS(cssMap, currentNode)?.also { list ->
+        buildFinalCSS(cssMap, node)?.also { list ->
             cssStack.push(CSSStyleBlock(lengthBefore, stringBuilder.length, list))
         }
     }
+
+    handleNode(body)
 
     HtmlAnnotation(stringBuilder.toString(), rangeList, cssStack)
 }
