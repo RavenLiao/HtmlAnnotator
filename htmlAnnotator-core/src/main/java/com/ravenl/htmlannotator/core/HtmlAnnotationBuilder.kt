@@ -63,9 +63,15 @@ suspend fun toHtmlAnnotation(
     suspend fun handleNode(node: Node) {
         yield()
         val handler = handles[node.nodeName()]
+        if (handler == null) {
+            logger.w(TAG) {
+                "unsupported node:${node.nodeName()}"
+            }
+        }
+        val cssDeclarations = buildFinalCSS(cssMap, node)
 
         val lengthBefore = stringBuilder.length
-        handler?.beforeChildren(stringBuilder, rangeList, node)
+        handler?.beforeChildren(stringBuilder, rangeList, cssDeclarations, node)
 
         if (handler?.handlerRendersContent() != true) {
             for (childNode in node.childNodes()) {
@@ -78,9 +84,16 @@ suspend fun toHtmlAnnotation(
         }
 
         val lengthAfter = stringBuilder.length
-        handler?.handleTagNode(stringBuilder, rangeList, node, lengthBefore, lengthAfter)
+        handler?.handleTagNode(
+            stringBuilder,
+            rangeList,
+            cssDeclarations,
+            node,
+            lengthBefore,
+            lengthAfter
+        )
 
-        buildFinalCSS(cssMap, node)?.also { list ->
+        cssDeclarations?.also { list ->
             cssStack.push(CSSStyleBlock(lengthBefore, stringBuilder.length, list))
         }
     }
