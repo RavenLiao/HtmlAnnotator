@@ -62,8 +62,9 @@ suspend fun toHtmlAnnotation(
 
     suspend fun handleNode(node: Node) {
         yield()
-        val handler = handles[node.nodeName()]
-        if (handler == null) {
+        val name = node.nodeName()
+        val handler = handles[name]
+        if (handler == null && name != "body" && name != "#comment") {
             logger.w(TAG) {
                 "unsupported node:${node.nodeName()}"
             }
