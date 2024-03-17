@@ -8,8 +8,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.AnnotatedString
 import com.ravenl.htmlannotator.compose.HtmlAnnotator
+import com.ravenl.htmlannotator.compose.cache.HtmlAnnotatorCache
+import com.ravenl.htmlannotator.compose.cache.LruAnnotatorCache
+import com.ravenl.htmlannotator.compose.css.CSSAnnotatedHandler
+import com.ravenl.htmlannotator.core.handler.TagHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -20,24 +25,37 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
+fun rememberHtmlAnnotator(
+    preTagHandlers: Map<String, TagHandler>? = HtmlAnnotator.defaultPreTagHandlers,
+    preCSSHandlers: Map<String, CSSAnnotatedHandler>? = HtmlAnnotator.defaultPreCSSHandlers,
+    isStripExtraWhiteSpace: Boolean = HtmlAnnotator.defaultIsStripExtraWhiteSpace,
+    cache: HtmlAnnotatorCache = LruAnnotatorCache(LocalLifecycleOwner.current.lifecycle)
+): HtmlAnnotator = HtmlAnnotator(
+    cache,
+    preTagHandlers,
+    preCSSHandlers,
+    isStripExtraWhiteSpace
+)
+
+@Composable
 fun rememberHtmlRenderState(
-    annotator: HtmlAnnotator = HtmlAnnotator(),
+    annotator: HtmlAnnotator = rememberHtmlAnnotator(),
     buildHtml: suspend HtmlAnnotator.(html: String) -> AnnotatedString = { from(it) },
-): HtmlRenderState<String> = remember(annotator, buildHtml) {
+): HtmlRenderState = remember(annotator, buildHtml) {
     HtmlRenderState(annotator, buildHtml)
 }
 
 
 @Stable
-class HtmlRenderState<T>(
+class HtmlRenderState(
     private val annotator: HtmlAnnotator,
-    private val buildHtml: suspend HtmlAnnotator.(html: T) -> AnnotatedString
+    private val buildHtml: suspend HtmlAnnotator.(html: String) -> AnnotatedString
 ) : RememberObserver {
 
     private var rememberedCount = 0
     private var coroutineScope: CoroutineScope? = null
 
-    var srcHtml: T? by mutableStateOf(null)
+    var srcHtml: String? by mutableStateOf(null)
     var isRendering: Boolean by mutableStateOf(false)
         private set
     var annotatedHtml: AnnotatedString? by mutableStateOf(null)

@@ -13,7 +13,7 @@ import androidx.compose.ui.text.style.TextOverflow
 fun HtmlText(
     html: String,
     modifier: Modifier = Modifier,
-    state: HtmlRenderState<String> = rememberHtmlRenderState(),
+    state: HtmlRenderState = rememberHtmlRenderState(),
     style: TextStyle = TextStyle.Default,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,

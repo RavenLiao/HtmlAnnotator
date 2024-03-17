@@ -12,6 +12,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import com.ravenl.htmlannotator.compose.cache.HtmlAnnotatorCache
 import com.ravenl.htmlannotator.compose.css.BackgroundColorCssAnnotatedHandler
 import com.ravenl.htmlannotator.compose.css.CSSAnnotatedHandler
 import com.ravenl.htmlannotator.compose.css.ColorCssAnnotatedHandler
@@ -34,9 +35,9 @@ import com.ravenl.htmlannotator.core.toHtmlAnnotation
 import com.ravenl.htmlannotator.core.util.Logger
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import java.io.InputStream
 
 class HtmlAnnotator(
+    private val cache: HtmlAnnotatorCache? = null,
     preTagHandlers: Map<String, TagHandler>? = defaultPreTagHandlers,
     preCSSHandlers: Map<String, CSSAnnotatedHandler>? = defaultPreCSSHandlers,
     val isStripExtraWhiteSpace: Boolean = defaultIsStripExtraWhiteSpace
@@ -68,17 +69,19 @@ class HtmlAnnotator(
     }
 
     suspend fun from(
-        input: InputStream, baseUri: String = "", charsetName: String? = null,
-        getExternalCSS: (suspend (link: String) -> String)? = null
-    ) = from(Jsoup.parse(input, charsetName, baseUri), getExternalCSS)
-
-    suspend fun from(
         html: String,
         baseUri: String = "",
         getExternalCSS: (suspend (link: String) -> String)? = null
-    ) = from(Jsoup.parse(html, baseUri), getExternalCSS)
+    ): AnnotatedString {
+        cache?.get(html)?.also { cacheValue ->
+            return cacheValue
+        }
+        return from(Jsoup.parse(html, baseUri), getExternalCSS).also { value ->
+            cache?.put(html, value)
+        }
+    }
 
-    suspend fun from(
+    private suspend fun from(
         doc: Document,
         getExternalCSS: (suspend (link: String) -> String)? = null
     ): AnnotatedString {
