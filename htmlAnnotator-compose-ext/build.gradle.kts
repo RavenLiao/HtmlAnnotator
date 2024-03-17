@@ -1,11 +1,10 @@
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
 }
 
 android {
-    namespace = "com.ravenl.htmlannotator.compose"
+    namespace = "com.ravenl.htmlannotator.compose.ext"
     compileSdk = property("compileSdk").toString().toInt()
 
     defaultConfig {
@@ -40,14 +39,11 @@ android {
 }
 
 dependencies {
-    api(project(":htmlAnnotator-core"))
+    api(project(":htmlAnnotator-compose"))
     api(platform(libs.compose.bom))
-    api(libs.compose.ui)
+    api(libs.compose.foundation)
 
     testImplementation(libs.junit)
-    androidTestImplementation(libs.bundles.android.test)
-    androidTestImplementation(platform(libs.compose.bom))
-    androidTestImplementation(libs.ui.test.junit4)
-    debugImplementation(libs.ui.tooling)
-    debugImplementation(libs.ui.test.manifest)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.espresso.core)
 }

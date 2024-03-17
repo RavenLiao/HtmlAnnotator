@@ -25,3 +25,4 @@ rootProject.name = "HtmlAnnotator"
 include(":app")
 include(":htmlAnnotator-core")
 include(":htmlAnnotator-compose")
+include(":htmlAnnotator-compose-ext")
