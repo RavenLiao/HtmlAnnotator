@@ -28,6 +28,7 @@ import com.ravenl.htmlannotator.compose.handler.ParagraphTextHandler
 import com.ravenl.htmlannotator.compose.handler.PreAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.SpanTextHandler
 import com.ravenl.htmlannotator.compose.styler.AnnotatedTagStyler
+import com.ravenl.htmlannotator.core.handler.ListItemHandler
 import com.ravenl.htmlannotator.core.handler.NewLineHandler
 import com.ravenl.htmlannotator.core.handler.ParagraphHandler
 import com.ravenl.htmlannotator.core.handler.TagHandler
@@ -137,8 +138,15 @@ class HtmlAnnotator(
         registerHandlerIfAbsent("b") { boldHandler }
         registerHandlerIfAbsent("strong") { boldHandler }
 
-        registerHandlerIfAbsent("blockquote") {
+        val marginHandler by lazy {
             ParagraphTextHandler { ParagraphStyle(textIndent = TextIndent(30.sp, 30.sp)) }
+        }
+        registerHandlerIfAbsent("blockquote") { marginHandler }
+        registerHandlerIfAbsent("ul") { marginHandler }
+        registerHandlerIfAbsent("ol") { marginHandler }
+
+        registerHandlerIfAbsent("li") {
+            ListItemHandler()
         }
 
         registerHandlerIfAbsent("br") { NewLineHandler(isStripExtraWhiteSpace, 1) }
@@ -226,6 +234,8 @@ class HtmlAnnotator(
 
         registerHandlerIfAbsent("a") { LinkAnnotatedHandler() }
         registerHandlerIfAbsent("img") { ImageAnnotatedHandler() }
+
+        registerHandlerIfAbsent("span") { TagHandler() }
     }
 
     private fun registerBuiltInCssHandlers(pre: Map<String, CSSAnnotatedHandler>?) {
