@@ -1,15 +1,13 @@
-package com.ravenl.htmlannotator.compose.ext
+package com.ravenl.htmlannotator.compose.ext.state
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.text.AnnotatedString
 import com.ravenl.htmlannotator.compose.HtmlAnnotator
 import com.ravenl.htmlannotator.compose.cache.HtmlAnnotatorCache
 import com.ravenl.htmlannotator.compose.cache.LruAnnotatorCache
@@ -37,19 +35,10 @@ fun rememberHtmlAnnotator(
     isStripExtraWhiteSpace
 )
 
-@Composable
-fun rememberHtmlRenderState(
-    annotator: HtmlAnnotator = rememberHtmlAnnotator(),
-    buildHtml: suspend HtmlAnnotator.(html: String) -> AnnotatedString = { from(it) },
-): HtmlRenderState = remember(annotator, buildHtml) {
-    HtmlRenderState(annotator, buildHtml)
-}
-
-
 @Stable
-class HtmlRenderState(
+abstract class BasicHtmlRenderState<R>(
     private val annotator: HtmlAnnotator,
-    private val buildHtml: suspend HtmlAnnotator.(html: String) -> AnnotatedString
+    var buildHtml: suspend HtmlAnnotator.(html: String) -> R
 ) : RememberObserver {
 
     private var rememberedCount = 0
@@ -58,7 +47,7 @@ class HtmlRenderState(
     var srcHtml: String? by mutableStateOf(null)
     var isRendering: Boolean by mutableStateOf(false)
         private set
-    var annotatedHtml: AnnotatedString? by mutableStateOf(null)
+    var resultHtml: R? by mutableStateOf(null)
         private set
 
     override fun onRemembered() {
@@ -70,7 +59,7 @@ class HtmlRenderState(
             launch {
                 snapshotFlow { srcHtml }.filterNotNull().collectLatest { src ->
                     isRendering = true
-                    annotatedHtml = withContext(Dispatchers.Default) {
+                    resultHtml = withContext(Dispatchers.Default) {
                         annotator.buildHtml(src)
                     }
                     isRendering = false
