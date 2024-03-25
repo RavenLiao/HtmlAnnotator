@@ -12,3 +12,8 @@ fun StringBuilder.appendNewLine(isStripExtraWhiteSpace: Boolean): Boolean {
     append('\n')
     return true
 }
+
+fun String.decodeUnicodeEscapes(): String =
+    """\\u([0-9A-Fa-f]{4})""".toRegex().replace(this) { matchResult ->
+        matchResult.groupValues[1].toInt(16).toChar().toString()
+    }
