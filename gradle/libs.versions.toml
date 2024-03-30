@@ -1,5 +1,6 @@
 [versions]
 agp = "8.2.2"
+coil-compose = "2.6.0"
 jsoup = "1.17.2"
 kotlin = "1.9.22"
 core-ktx = "1.12.0"
@@ -14,6 +15,7 @@ compose-compiler = "1.5.8"
 annotation-jvm = "1.7.1"
 
 [libraries]
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
