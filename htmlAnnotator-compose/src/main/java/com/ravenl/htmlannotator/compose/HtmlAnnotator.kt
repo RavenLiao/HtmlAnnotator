@@ -27,7 +27,9 @@ import com.ravenl.htmlannotator.compose.handler.LinkAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.ParagraphTextHandler
 import com.ravenl.htmlannotator.compose.handler.PreAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.SpanTextHandler
-import com.ravenl.htmlannotator.compose.styler.AnnotatedTagStyler
+import com.ravenl.htmlannotator.compose.styler.AnnotatedStyler
+import com.ravenl.htmlannotator.compose.styler.ParagraphTextStyler
+import com.ravenl.htmlannotator.compose.styler.buildNotOverlapList
 import com.ravenl.htmlannotator.core.handler.ListItemHandler
 import com.ravenl.htmlannotator.core.handler.NewLineHandler
 import com.ravenl.htmlannotator.core.handler.ParagraphHandler
@@ -86,27 +88,53 @@ class HtmlAnnotator(
         doc: Document,
         getExternalCSS: (suspend (link: String) -> String)? = null
     ): AnnotatedString {
-        val (body, tags, cssBlocks) = toHtmlAnnotation(doc, handlers, logger, getExternalCSS)
+        val (body, tagStylers, cssBlocks) = toHtmlAnnotation(doc, handlers, logger, getExternalCSS)
         return AnnotatedString.Builder(body.length).apply {
             append(body)
-            tags.forEach { tag ->
-                val styler = tag as? AnnotatedTagStyler
+            val paragraphStylerList = ArrayList<ParagraphTextStyler>()
+            tagStylers.forEach { src ->
+                val styler = src as? AnnotatedStyler
                 if (styler != null) {
-                    tag.addStyle(this)
-                } else {
-                    logger.e(TAG) {
-                        "TagStyler is not AnnotatedTagStyler: $tag"
+                    if (styler is ParagraphTextStyler) {
+                        styler.priority = paragraphStylerList.size
+                        paragraphStylerList.add(styler)
+                    } else {
+                        styler.addStyle(this)
                     }
+                } else {
+                    logger.e(TAG) { "TagStyler is not AnnotatedTagStyler: $src" }
                 }
             }
 
+            val cssStylerList = ArrayList<AnnotatedStyler>()
             cssBlocks.forEach { block ->
                 block.declarations.forEach { declaration ->
                     with(declaration) {
-                        cssHandlers[property]?.addCss(this@apply, block.start, block.end, value)
+                        val cssHandler = cssHandlers[property]
+                        if (cssHandler != null) {
+                            cssHandler.addCssStyler(cssStylerList, block.start, block.end, value)
+                        } else {
+                            logger.w(TAG) { "unsupported css: $property: $value" }
+                        }
+
                     }
                 }
             }
+            cssStylerList.forEach { styler ->
+                if (styler is ParagraphTextStyler) {
+                    styler.priority = paragraphStylerList.size
+                    paragraphStylerList.add(styler)
+                } else {
+                    styler.addStyle(this)
+                }
+            }
+
+            if (paragraphStylerList.isNotEmpty()) {
+                paragraphStylerList.buildNotOverlapList(length).forEach {
+                    it.addStyle(this)
+                }
+            }
+
         }.toAnnotatedString()
     }
 

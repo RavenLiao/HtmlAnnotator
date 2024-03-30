@@ -31,7 +31,7 @@ suspend fun toHtmlAnnotation(
     val body = doc.body()
     yield()
     val stringBuilder = StringBuilder()
-    val rangeList = mutableListOf<TagStyler>()
+    val rangeList = mutableListOf<TextStyler>()
     val cssStack = Stack<CSSStyleBlock>()
     val internalCSS = buildInternalCSSBlock(doc)
     yield()

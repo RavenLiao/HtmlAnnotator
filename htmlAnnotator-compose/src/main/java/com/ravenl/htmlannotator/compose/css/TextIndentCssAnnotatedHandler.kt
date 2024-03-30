@@ -1,20 +1,26 @@
 package com.ravenl.htmlannotator.compose.css
 
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.ravenl.htmlannotator.compose.HtmlAnnotator
+import com.ravenl.htmlannotator.compose.styler.AnnotatedStyler
+import com.ravenl.htmlannotator.compose.styler.ParagraphTextStyler
 
 private const val EM = "em"
 private const val PX = "px"
 
 open class TextIndentCssAnnotatedHandler : CSSAnnotatedHandler() {
 
-    override fun addCss(builder: AnnotatedString.Builder, start: Int, end: Int, value: String) {
+    override fun addCssStyler(
+        rangeList: MutableList<AnnotatedStyler>,
+        start: Int,
+        end: Int,
+        value: String
+    ) {
         parse(value)?.also { indent ->
-            builder.addStyle(ParagraphStyle(textIndent = indent), start, end)
+            rangeList.add(ParagraphTextStyler(start, end, ParagraphStyle(textIndent = indent)))
         }
     }
 

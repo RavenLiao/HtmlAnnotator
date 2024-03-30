@@ -5,7 +5,7 @@ import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.UrlAnnotation
 
 class LinkAnnotatedStyler(private val url: String, start: Int, end: Int) :
-    AnnotatedTagStyler(start, end) {
+    AnnotatedStyler(start, end) {
 
     override fun addStyle(builder: AnnotatedString.Builder) {
         @OptIn(ExperimentalTextApi::class)

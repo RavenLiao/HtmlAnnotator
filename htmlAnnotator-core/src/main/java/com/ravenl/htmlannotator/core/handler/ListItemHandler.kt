@@ -1,6 +1,6 @@
 package com.ravenl.htmlannotator.core.handler
 
-import com.ravenl.htmlannotator.core.TagStyler
+import com.ravenl.htmlannotator.core.TextStyler
 import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
 import org.jsoup.nodes.Node
 
@@ -24,7 +24,7 @@ open class ListItemHandler : TagHandler() {
 
     override fun beforeChildren(
         builder: StringBuilder,
-        rangeList: MutableList<TagStyler>,
+        rangeList: MutableList<TextStyler>,
         cssDeclarations: List<CSSDeclaration>?,
         node: Node
     ) {

@@ -1,7 +1,7 @@
 package com.ravenl.htmlannotator.compose.css
 
-import androidx.compose.ui.text.AnnotatedString
+import com.ravenl.htmlannotator.compose.styler.AnnotatedStyler
 
 abstract class CSSAnnotatedHandler {
-    abstract fun addCss(builder: AnnotatedString.Builder, start: Int, end: Int, value: String)
+    abstract fun addCssStyler(rangeList: MutableList<AnnotatedStyler>, start: Int, end: Int, value: String)
 }

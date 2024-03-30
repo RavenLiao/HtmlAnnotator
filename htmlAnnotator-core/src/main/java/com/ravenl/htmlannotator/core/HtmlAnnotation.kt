@@ -5,6 +5,6 @@ import java.util.Stack
 
 data class HtmlAnnotation(
     val htmlBody: String,
-    val rangeList: List<TagStyler>,
+    val tagStylers: List<TextStyler>,
     val cssStack: Stack<CSSStyleBlock>
 )
