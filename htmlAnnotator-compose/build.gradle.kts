@@ -41,7 +41,6 @@ android {
 
 dependencies {
     api(project(":htmlAnnotator-core"))
-    api(platform(libs.compose.bom))
     api(libs.compose.foundation)
     api(libs.lifecycle.runtime.ktx)
 
