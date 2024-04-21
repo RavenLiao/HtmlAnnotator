@@ -290,7 +290,7 @@ class HtmlAnnotator(
     companion object {
         private const val TAG = "HtmlAnnotator"
 
-        val logger by lazy { Logger() }
+        var logger: Logger = Logger()
         var defaultPreTagHandlers: Map<String, TagHandler>? = null
         var defaultPreCSSHandlers: Map<String, CSSAnnotatedHandler>? = null
         var defaultIsStripExtraWhiteSpace: Boolean = true

@@ -128,7 +128,7 @@ class HtmlSpanner(
     companion object {
         private const val TAG = "HtmlSpanner"
 
-        val logger by lazy { Logger() }
+        var logger: Logger = Logger()
         var defaultPreTagHandlers: Map<String, TagHandler>? = null
         var defaultPreCSSHandlers: Map<String, CSSSpannedHandler>? = null
         var defaultIsStripExtraWhiteSpace: Boolean = true
