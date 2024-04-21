@@ -13,7 +13,7 @@ activity-compose = "1.8.2"
 compose-bom = "2024.04.00"
 compose-foundation = "1.6.5"
 compose-compiler = "1.5.11"
-annotation-jvm = "1.7.1"
+annotation = "1.7.1"
 mavenpublish = "0.28.0"
 
 [libraries]
@@ -35,7 +35,7 @@ ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jvm", version.ref = "annotation-jvm" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
 
 [bundles]
 android-test = ["androidx-test-ext-junit", "espresso-core"]
