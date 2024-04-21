@@ -9,9 +9,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import com.ravenl.htmlannotator.compose.HtmlAnnotator
-import com.ravenl.htmlannotator.compose.cache.HtmlAnnotatorCache
-import com.ravenl.htmlannotator.compose.cache.LruAnnotatorCache
+import com.ravenl.htmlannotator.compose.HtmlAnnotatorCache
 import com.ravenl.htmlannotator.compose.css.CSSAnnotatedHandler
+import com.ravenl.htmlannotator.compose.ext.cache.LruAnnotatorCache
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

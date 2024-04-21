@@ -1,4 +1,4 @@
-package com.ravenl.htmlannotator.compose.cache
+package com.ravenl.htmlannotator.compose
 
 import androidx.compose.ui.text.AnnotatedString
 

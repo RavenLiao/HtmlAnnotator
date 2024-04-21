@@ -1,9 +1,10 @@
-package com.ravenl.htmlannotator.compose.cache
+package com.ravenl.htmlannotator.compose.ext.cache
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import com.ravenl.htmlannotator.compose.HtmlAnnotatorCache
 
 class LruAnnotatorCache(lifecycle: Lifecycle, maxSize: Int = 3) : HtmlAnnotatorCache {
     val lruCache = object : LinkedHashMap<String, AnnotatedString>(maxSize, 1f, true) {

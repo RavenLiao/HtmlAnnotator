@@ -40,6 +40,7 @@ android {
 
 dependencies {
     api(project(":htmlAnnotator-compose"))
+    implementation(libs.lifecycle.runtime.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
