@@ -2,21 +2,20 @@ package com.ravenl.htmlannotator.core.handler
 
 import com.ravenl.htmlannotator.core.TextStyler
 import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
-import com.ravenl.htmlannotator.core.util.appendNewLine
 import org.jsoup.nodes.Node
 
-class NewLineHandler(private val isStripExtraWhiteSpace: Boolean, private val amount: Int) :
-    TagHandler() {
-    override fun handleTagNode(
+abstract class NewLineHandler(private val addNewLineAtBefore: Boolean) : TagHandler() {
+
+    override fun beforeChildren(
         builder: StringBuilder,
         rangeList: MutableList<TextStyler>,
         cssDeclarations: List<CSSDeclaration>?,
-        node: Node,
-        start: Int,
-        end: Int
+        node: Node
     ) {
-        repeat(amount) {
-            if (!builder.appendNewLine(isStripExtraWhiteSpace)) return@repeat
+        if (addNewLineAtBefore && builder.isNotEmpty()) {
+            if (builder[builder.length - 1] != '\n') {
+                builder.append('\n')
+            }
         }
     }
 }

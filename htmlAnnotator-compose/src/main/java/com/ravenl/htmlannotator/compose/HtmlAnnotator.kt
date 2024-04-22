@@ -30,7 +30,7 @@ import com.ravenl.htmlannotator.compose.styler.AnnotatedStyler
 import com.ravenl.htmlannotator.compose.styler.ParagraphTextStyler
 import com.ravenl.htmlannotator.compose.styler.buildNotOverlapList
 import com.ravenl.htmlannotator.core.handler.ListItemHandler
-import com.ravenl.htmlannotator.core.handler.NewLineHandler
+import com.ravenl.htmlannotator.core.handler.AppendLinesHandler
 import com.ravenl.htmlannotator.core.handler.ParagraphHandler
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import com.ravenl.htmlannotator.core.toHtmlAnnotation
@@ -176,7 +176,7 @@ class HtmlAnnotator(
             ListItemHandler()
         }
 
-        registerHandlerIfAbsent("br") { NewLineHandler(isStripExtraWhiteSpace, 1) }
+        registerHandlerIfAbsent("br") { AppendLinesHandler(isStripExtraWhiteSpace, 1) }
 
 
         val pHandler by lazy(boldHandler) { ParagraphHandler() }

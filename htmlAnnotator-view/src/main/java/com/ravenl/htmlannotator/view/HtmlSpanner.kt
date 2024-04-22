@@ -1,13 +1,28 @@
 package com.ravenl.htmlannotator.view
 
+import android.graphics.Typeface
 import android.os.Build
 import android.text.Spannable
 import android.text.SpannableStringBuilder
+import android.text.style.LeadingMarginSpan
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
+import android.text.style.SubscriptSpan
+import android.text.style.SuperscriptSpan
+import android.text.style.TypefaceSpan
 import android.util.ArrayMap
+import com.ravenl.htmlannotator.core.handler.AppendLinesHandler
+import com.ravenl.htmlannotator.core.handler.ListItemHandler
+import com.ravenl.htmlannotator.core.handler.ParagraphHandler
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import com.ravenl.htmlannotator.core.toHtmlAnnotation
 import com.ravenl.htmlannotator.core.util.Logger
 import com.ravenl.htmlannotator.view.css.CSSSpannedHandler
+import com.ravenl.htmlannotator.view.handler.LinkSpannedHandler
+import com.ravenl.htmlannotator.view.handler.MultipleSpanHandler
+import com.ravenl.htmlannotator.view.handler.PreSpannedHandler
+import com.ravenl.htmlannotator.view.handler.SingleSpanHandler
+import com.ravenl.htmlannotator.view.spans.CenterSpan
 import com.ravenl.htmlannotator.view.styler.SpannedStyler
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -111,6 +126,94 @@ class HtmlSpanner(
             }
         }
 
+        val italicHandler by lazy {
+            SingleSpanHandler(false) { StyleSpan(Typeface.ITALIC) }
+        }
+
+        registerHandlerIfAbsent("i") { italicHandler }
+        registerHandlerIfAbsent("em") { italicHandler }
+        registerHandlerIfAbsent("cite") { italicHandler }
+        registerHandlerIfAbsent("dfn") { italicHandler }
+
+        val boldHandler by lazy {
+            SingleSpanHandler(false) { StyleSpan(Typeface.BOLD) }
+        }
+
+        registerHandlerIfAbsent("b") { boldHandler }
+        registerHandlerIfAbsent("strong") { boldHandler }
+
+        val marginHandler by lazy {
+            SingleSpanHandler { LeadingMarginSpan.Standard(30) }
+        }
+        registerHandlerIfAbsent("blockquote") { marginHandler }
+        registerHandlerIfAbsent("ul") { marginHandler }
+        registerHandlerIfAbsent("ol") { marginHandler }
+
+        registerHandlerIfAbsent("li") {
+            ListItemHandler()
+        }
+
+        registerHandlerIfAbsent("br") { AppendLinesHandler(isStripExtraWhiteSpace, 1) }
+
+
+        val pHandler by lazy(boldHandler) { ParagraphHandler() }
+
+        registerHandlerIfAbsent("p") { pHandler }
+        registerHandlerIfAbsent("div") { pHandler }
+
+
+        registerHandlerIfAbsent("h1") {
+            MultipleSpanHandler { listOf(StyleSpan(Typeface.BOLD), RelativeSizeSpan(2f)) }
+        }
+        registerHandlerIfAbsent("h2") {
+            MultipleSpanHandler { listOf(StyleSpan(Typeface.BOLD), RelativeSizeSpan(1.5f)) }
+        }
+        registerHandlerIfAbsent("h3") {
+            MultipleSpanHandler { listOf(StyleSpan(Typeface.BOLD), RelativeSizeSpan(1.17f)) }
+        }
+        registerHandlerIfAbsent("h4") {
+            MultipleSpanHandler { listOf(StyleSpan(Typeface.BOLD), RelativeSizeSpan(1f)) }
+        }
+        registerHandlerIfAbsent("h5") {
+            MultipleSpanHandler { listOf(StyleSpan(Typeface.BOLD), RelativeSizeSpan(0.83f)) }
+        }
+        registerHandlerIfAbsent("h6") {
+            MultipleSpanHandler { listOf(StyleSpan(Typeface.BOLD), RelativeSizeSpan(0.67f)) }
+        }
+
+
+        registerHandlerIfAbsent("tt") { SingleSpanHandler { TypefaceSpan("monospace") } }
+
+
+        registerHandlerIfAbsent("pre") { PreSpannedHandler(isStripExtraWhiteSpace) }
+
+
+        registerHandlerIfAbsent("big") {
+            MultipleSpanHandler(false) { listOf(StyleSpan(Typeface.BOLD), RelativeSizeSpan(1.25f)) }
+        }
+
+        registerHandlerIfAbsent("small") {
+            MultipleSpanHandler(false) { listOf(StyleSpan(Typeface.BOLD), RelativeSizeSpan(0.8f)) }
+        }
+
+
+        registerHandlerIfAbsent("sub") {
+            MultipleSpanHandler(false) { listOf(SubscriptSpan(), RelativeSizeSpan(0.7f)) }
+        }
+
+        registerHandlerIfAbsent("sup") {
+            MultipleSpanHandler(false) { listOf(SuperscriptSpan(), RelativeSizeSpan(0.7f)) }
+        }
+
+
+        registerHandlerIfAbsent("center") {
+            SingleSpanHandler { CenterSpan() }
+        }
+
+
+        registerHandlerIfAbsent("a") { LinkSpannedHandler() }
+
+        registerHandlerIfAbsent("span") { TagHandler() }
     }
 
     private fun registerBuiltInCssHandlers(pre: Map<String, CSSSpannedHandler>?) {
