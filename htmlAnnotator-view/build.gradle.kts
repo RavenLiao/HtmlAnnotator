@@ -34,6 +34,7 @@ android {
 
 dependencies {
     api(project(":htmlAnnotator-core"))
+    implementation(libs.androidx.annotation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.android.test)
 }

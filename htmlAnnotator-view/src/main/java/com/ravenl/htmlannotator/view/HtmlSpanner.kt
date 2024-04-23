@@ -2,8 +2,10 @@ package com.ravenl.htmlannotator.view
 
 import android.graphics.Typeface
 import android.os.Build
+import android.text.Layout
 import android.text.Spannable
 import android.text.SpannableStringBuilder
+import android.text.style.AlignmentSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
@@ -17,12 +19,18 @@ import com.ravenl.htmlannotator.core.handler.ParagraphHandler
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import com.ravenl.htmlannotator.core.toHtmlAnnotation
 import com.ravenl.htmlannotator.core.util.Logger
+import com.ravenl.htmlannotator.view.css.BackgroundColorCssSpannedHandler
 import com.ravenl.htmlannotator.view.css.CSSSpannedHandler
+import com.ravenl.htmlannotator.view.css.ColorCssSpannedHandler
+import com.ravenl.htmlannotator.view.css.FontSizeCssSpannedHandler
+import com.ravenl.htmlannotator.view.css.FontStyleCssSpannedHandler
+import com.ravenl.htmlannotator.view.css.TextAlignCssSpannedHandler
+import com.ravenl.htmlannotator.view.css.TextDecorationCssSpannedHandler
+import com.ravenl.htmlannotator.view.css.TextIndentCssSpannedHandler
 import com.ravenl.htmlannotator.view.handler.LinkSpannedHandler
 import com.ravenl.htmlannotator.view.handler.MultipleSpanHandler
 import com.ravenl.htmlannotator.view.handler.PreSpannedHandler
 import com.ravenl.htmlannotator.view.handler.SingleSpanHandler
-import com.ravenl.htmlannotator.view.spans.CenterSpan
 import com.ravenl.htmlannotator.view.styler.SpannedStyler
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -207,7 +215,7 @@ class HtmlSpanner(
 
 
         registerHandlerIfAbsent("center") {
-            SingleSpanHandler { CenterSpan() }
+            SingleSpanHandler { AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER) }
         }
 
 
@@ -226,6 +234,14 @@ class HtmlSpanner(
                 registerCssHandler(tag, getHandler())
             }
         }
+
+        registerHandlerIfAbsent("text-align") { TextAlignCssSpannedHandler() }
+        registerHandlerIfAbsent("font-size") { FontSizeCssSpannedHandler() }
+        registerHandlerIfAbsent("font-style") { FontStyleCssSpannedHandler() }
+        registerHandlerIfAbsent("color") { ColorCssSpannedHandler() }
+        registerHandlerIfAbsent("background-color") { BackgroundColorCssSpannedHandler() }
+        registerHandlerIfAbsent("text-indent") { TextIndentCssSpannedHandler() }
+        registerHandlerIfAbsent("text-decoration") { TextDecorationCssSpannedHandler() }
     }
 
     companion object {
