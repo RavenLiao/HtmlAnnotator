@@ -32,6 +32,8 @@ import com.ravenl.htmlannotator.view.handler.MultipleSpanHandler
 import com.ravenl.htmlannotator.view.handler.PreSpannedHandler
 import com.ravenl.htmlannotator.view.handler.SingleSpanHandler
 import com.ravenl.htmlannotator.view.styler.SpannedStyler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
@@ -91,9 +93,9 @@ class HtmlSpanner(
     private suspend fun from(
         doc: Document,
         getExternalCSS: (suspend (link: String) -> String)? = null
-    ): Spannable {
+    ): Spannable = withContext(Dispatchers.Default) {
         val (body, tagStylers, cssBlocks) = toHtmlAnnotation(doc, handlers, logger, getExternalCSS)
-        return SpannableStringBuilder(body).apply {
+        SpannableStringBuilder(body).apply {
             tagStylers.forEach { src ->
                 val styler = src as? SpannedStyler
                 if (styler != null) {

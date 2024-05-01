@@ -29,12 +29,14 @@ import com.ravenl.htmlannotator.compose.handler.SpanTextHandler
 import com.ravenl.htmlannotator.compose.styler.AnnotatedStyler
 import com.ravenl.htmlannotator.compose.styler.ParagraphTextStyler
 import com.ravenl.htmlannotator.compose.styler.buildNotOverlapList
-import com.ravenl.htmlannotator.core.handler.ListItemHandler
 import com.ravenl.htmlannotator.core.handler.AppendLinesHandler
+import com.ravenl.htmlannotator.core.handler.ListItemHandler
 import com.ravenl.htmlannotator.core.handler.ParagraphHandler
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import com.ravenl.htmlannotator.core.toHtmlAnnotation
 import com.ravenl.htmlannotator.core.util.Logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
@@ -86,9 +88,9 @@ class HtmlAnnotator(
     private suspend fun from(
         doc: Document,
         getExternalCSS: (suspend (link: String) -> String)? = null
-    ): AnnotatedString {
+    ): AnnotatedString = withContext(Dispatchers.Default) {
         val (body, tagStylers, cssBlocks) = toHtmlAnnotation(doc, handlers, logger, getExternalCSS)
-        return AnnotatedString.Builder(body.length).apply {
+        AnnotatedString.Builder(body.length).apply {
             append(body)
             val paragraphStylerList = ArrayList<ParagraphTextStyler>()
             tagStylers.forEach { src ->
