@@ -1,9 +1,11 @@
 package com.ravenL.htmlannotator
 
 import android.os.Bundle
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,10 +15,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -24,19 +26,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
+import com.ravenL.htmlannotator.spanner.image.setHtmlImageText
 import com.ravenL.htmlannotator.ui.theme.HtmlAnnotatorTheme
 import com.ravenl.htmlannotator.compose.ext.state.HtmlContentState
 import com.ravenl.htmlannotator.compose.ext.state.rememberHtmlContentState
 import com.ravenl.htmlannotator.compose.ext.widgets.BasicHtmlImageText
 import com.ravenl.htmlannotator.compose.styler.ImageAnnotatedStyler
+import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
@@ -223,9 +232,7 @@ fun Screen() {
         )
 
         LazyRow(
-            Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.1f),
+            Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 8.dp)
         ) {
             items(htmlList) {
@@ -235,15 +242,46 @@ fun Screen() {
             }
         }
 
-        HtmlImageText(
-            html = srcHtml,
-            modifier = Modifier
+        LazyVerticalGrid(
+            GridCells.Fixed(2),
+            Modifier
                 .padding(8.dp)
                 .fillMaxWidth()
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .border(1.dp, Color.Blue)
-        )
+                .weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            item {
+                BorderBox("Compose") {
+                    HtmlImageText(
+                        html = srcHtml,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            item {
+                BorderBox("view") {
+                    HtmlImageTextView(
+                        html = srcHtml,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun BorderBox(
+    title: String,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = title)
+        Column(Modifier.border(1.dp, Color.Blue)) {
+            content()
+        }
     }
 }
 
@@ -266,7 +304,11 @@ fun HtmlImageText(
         imageContent(annotation.item)
     },
     renderDefault: @Composable ColumnScope.(AnnotatedString) -> Unit = { text ->
-        BasicText(text, Modifier.fillMaxWidth())
+        BasicText(
+            text,
+            Modifier.fillMaxWidth(),
+            style = TextStyle.Default.copy(color = Color.Black)
+        )
     }
 ) = BasicHtmlImageText(
     html = html,
@@ -276,3 +318,31 @@ fun HtmlImageText(
     renderTag = renderTag,
     renderDefault = renderDefault
 )
+
+
+@Composable
+fun HtmlImageTextView(
+    html: String,
+    modifier: Modifier = Modifier,
+) {
+    val scope = rememberCoroutineScope()
+    AndroidView(
+        factory = { c ->
+            TextView(c).apply {
+                setTextColor(Color.Black.toArgb())
+            }
+        },
+        modifier = modifier,
+        onReset = {}
+    ) { view ->
+        if (view.tag != html) {
+            view.tag = html
+            val placeholder = view.context.getDrawable(R.drawable.ic_launcher_foreground)!!.apply {
+                setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+            }
+            scope.launch {
+                view.setHtmlImageText(html, placeholder)
+            }
+        }
+    }
+}

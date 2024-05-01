@@ -69,4 +69,5 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(project(":htmlAnnotator-compose-ext"))
+    implementation(project(":htmlAnnotator-view"))
 }

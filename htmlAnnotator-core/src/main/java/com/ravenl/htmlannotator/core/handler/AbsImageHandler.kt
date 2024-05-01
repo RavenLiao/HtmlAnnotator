@@ -15,10 +15,22 @@ abstract class AbsImageHandler : TagHandler() {
         end: Int
     ) {
         builder.append(PLACE_HOLDER)
-        rangeList.add(getImageStyler(node.attr("src"), end, end + PLACE_HOLDER.length))
+        rangeList.add(
+            getImageStyler(
+                node.attr("src"),
+                cssDeclarations,
+                end,
+                end + PLACE_HOLDER.length
+            )
+        )
     }
 
-    abstract fun getImageStyler(imageUrl: String, start: Int, end: Int): TextStyler
+    abstract fun getImageStyler(
+        imageUrl: String,
+        cssDeclarations: List<CSSDeclaration>?,
+        start: Int,
+        end: Int
+    ): TextStyler
 
     companion object {
         const val PLACE_HOLDER = "\uD83D\uDDBC\uFE0F"
