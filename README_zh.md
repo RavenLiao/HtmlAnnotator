@@ -6,7 +6,7 @@
 
 翻译：[English](README.md)
 
-HtmlAnnotator 是 Android 上的一个HTML渲染库，而且支持解析CSS样式，目前支持 Jetpack Compose Compose，后续会支持View。
+HtmlAnnotator 是 Android 上的一个HTML渲染库，而且支持解析CSS样式，支持 Jetpack Compose和View。
 
 
 ## 特点
@@ -17,6 +17,104 @@ HtmlAnnotator 是 Android 上的一个HTML渲染库，而且支持解析CSS样�
 * 支持转换结果缓存
 * 支持 Jetpack Compose
 * 基于 Kotlin 及 Kotlin 协程编写
+
+## 默认解析器
+###  Jetpack Compose
+#### Html Tag
+
+- i
+- em
+- cite
+- dfn
+- b
+- strong
+- blockquote
+- ul
+- ol
+- li
+- br
+- p
+- div
+- h1
+- h2
+- h3
+- h4
+- h5
+- h6
+- tt
+- pre
+- big
+- small
+- sub
+- sup
+- center
+- a
+- img
+- span
+
+#### CSS Rule
+
+- text-align
+
+- font-size
+
+- font-weight
+
+- font-style
+
+- color
+
+- background-color
+
+- text-indent
+
+- text-decoration
+
+  
+
+###  View
+#### Html Tag
+
+- i
+- em
+- cite
+- dfn
+- b
+- strong
+- blockquote
+- ul
+- ol
+- li
+- br
+- p
+- div
+- h1
+- h2
+- h3
+- h4
+- h5
+- h6
+- tt
+- pre
+- big
+- small
+- sub
+- sup
+- center
+- a
+- span
+
+#### CSS Rule
+
+- text-align
+- font-size
+- font-style
+- color
+- background-color
+- text-indent
+- text-decoration
+
+
 
 ## 导入
 
@@ -30,6 +128,9 @@ dependencies {
     implementation("io.github.ravenliao.htmlannotator:htmlAnnotator-compose-ext:${LAST_VERSION}")
     // Jetpack Compose 基础支持
     implementation("io.github.ravenliao.htmlannotator:htmlAnnotator-compose:${LAST_VERSION}")
+    
+    // View
+    implementation("io.github.ravenliao.htmlannotator:htmlAnnotator-view:${LAST_VERSION}")
 
 }
 ```

@@ -6,7 +6,7 @@
 
 Translation: [中文](./README_zh.md)
 
-HtmlAnnotator is an HTML rendering library for Android that supports parsing CSS styles. It currently supports Jetpack Compose and will support Views in the future.
+HtmlAnnotator is an HTML rendering library for Android that supports parsing CSS styles. It supports Jetpack Compose and Views.
 
 
 ## Features
@@ -17,6 +17,109 @@ HtmlAnnotator is an HTML rendering library for Android that supports parsing CSS
 * Supports caching of conversion results
 * Supports Jetpack Compose
 * Written in Kotlin and utilizes Kotlin coroutines
+
+
+
+## Default parsers
+
+###  Jetpack Compose
+
+#### Html Tag
+
+- i
+- em
+- cite
+- dfn
+- b
+- strong
+- blockquote
+- ul
+- ol
+- li
+- br
+- p
+- div
+- h1
+- h2
+- h3
+- h4
+- h5
+- h6
+- tt
+- pre
+- big
+- small
+- sub
+- sup
+- center
+- a
+- img
+- span
+
+#### CSS Rule
+
+- text-align
+
+- font-size
+
+- font-weight
+
+- font-style
+
+- color
+
+- background-color
+
+- text-indent
+
+- text-decoration
+
+  
+
+###  View
+
+#### Html Tag
+
+- i
+- em
+- cite
+- dfn
+- b
+- strong
+- blockquote
+- ul
+- ol
+- li
+- br
+- p
+- div
+- h1
+- h2
+- h3
+- h4
+- h5
+- h6
+- tt
+- pre
+- big
+- small
+- sub
+- sup
+- center
+- a
+- span
+
+#### CSS Rule
+
+- text-align
+- font-size
+- font-style
+- color
+- background-color
+- text-indent
+- text-decoration
+
+
 
 ## Import
 
@@ -30,7 +133,8 @@ dependencies {
     implementation("io.github.ravenliao.htmlannotator:htmlAnnotator-compose-ext:${LAST_VERSION}")
     // Basic support for Jetpack Compose
     implementation("io.github.ravenliao.htmlannotator:htmlAnnotator-compose:${LAST_VERSION}")
-
+    // View
+    implementation("io.github.ravenliao.htmlannotator:htmlAnnotator-view:${LAST_VERSION}")
 }
 ```
 
