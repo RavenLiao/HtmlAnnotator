@@ -41,7 +41,10 @@ class ParagraphTextStyler(start: Int, end: Int, val paragraphStyle: ParagraphSty
     }
 }
 
-
+/**
+ * Additional line breaks may be introduced
+ * @see ParagraphStyle Once a portion of the text is marked with a ParagraphStyle, that portion will be separated from the remaining as if a line feed character was added.
+ */
 fun List<ParagraphTextStyler>.buildNotOverlapList(totalLength: Int): List<ParagraphTextStyler> {
     if (size <= 1) {
         return this
