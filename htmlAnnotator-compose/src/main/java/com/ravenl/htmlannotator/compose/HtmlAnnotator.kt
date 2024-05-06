@@ -168,7 +168,7 @@ class HtmlAnnotator(
         registerHandlerIfAbsent("strong") { boldHandler }
 
         val marginHandler by lazy {
-            ParagraphTextHandler { ParagraphStyle(textIndent = TextIndent(30.sp, 30.sp)) }
+            ParagraphTextHandler { ParagraphStyle(textIndent = TextIndent(4.sp, 4.sp)) }
         }
         registerHandlerIfAbsent("blockquote") { marginHandler }
         registerHandlerIfAbsent("ul") { marginHandler }
