@@ -5,6 +5,7 @@ import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -28,12 +29,9 @@ fun rememberHtmlAnnotator(
     preCSSHandlers: Map<String, CSSAnnotatedHandler>? = HtmlAnnotator.defaultPreCSSHandlers,
     isStripExtraWhiteSpace: Boolean = HtmlAnnotator.defaultIsStripExtraWhiteSpace,
     cache: HtmlAnnotatorCache = LruAnnotatorCache(LocalLifecycleOwner.current.lifecycle)
-): HtmlAnnotator = HtmlAnnotator(
-    cache,
-    preTagHandlers,
-    preCSSHandlers,
-    isStripExtraWhiteSpace
-)
+): HtmlAnnotator = remember(preTagHandlers, preCSSHandlers, isStripExtraWhiteSpace, cache) {
+    HtmlAnnotator(cache, preTagHandlers, preCSSHandlers, isStripExtraWhiteSpace)
+}
 
 @Stable
 abstract class BasicHtmlRenderState<R>(
