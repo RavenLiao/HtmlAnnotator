@@ -138,6 +138,23 @@ dependencies {
 }
 ```
 
+### Desugaring Support (Optional)
+According to the [Jsoup recommendation](https://github.com/jhy/jsoup?tab=readme-ov-file#android-support), add [desugaring support](https://developer.android.com/studio/write/java8-support#library-desugaring) to enable advanced Java features:
+
+```
+android {
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+}
+```
+
+
+
 #### R8 / Proguard
 
 This library doesn't require any specific Proguard rules to be configured, but you may need to add Proguard configurations for indirect dependencies like [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/jvm/resources/META-INF/proguard/coroutines.pro) and [Jsoup](https://github.com/jhy/jsoup/)
