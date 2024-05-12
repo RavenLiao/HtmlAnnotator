@@ -14,7 +14,6 @@ import android.text.style.SuperscriptSpan
 import android.text.style.TypefaceSpan
 import android.util.ArrayMap
 import com.ravenl.htmlannotator.core.handler.AppendLinesHandler
-import com.ravenl.htmlannotator.core.handler.ListItemHandler
 import com.ravenl.htmlannotator.core.handler.ParagraphHandler
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import com.ravenl.htmlannotator.core.toHtmlAnnotation
@@ -28,6 +27,7 @@ import com.ravenl.htmlannotator.view.css.TextAlignCssSpannedHandler
 import com.ravenl.htmlannotator.view.css.TextDecorationCssSpannedHandler
 import com.ravenl.htmlannotator.view.css.TextIndentCssSpannedHandler
 import com.ravenl.htmlannotator.view.handler.LinkSpannedHandler
+import com.ravenl.htmlannotator.view.handler.ListItemSpannedHandler
 import com.ravenl.htmlannotator.view.handler.MultipleSpanHandler
 import com.ravenl.htmlannotator.view.handler.PreSpannedHandler
 import com.ravenl.htmlannotator.view.handler.SingleSpanHandler
@@ -160,7 +160,7 @@ class HtmlSpanner(
         registerHandlerIfAbsent("ol") { marginHandler }
 
         registerHandlerIfAbsent("li") {
-            ListItemHandler()
+            ListItemSpannedHandler()
         }
 
         registerHandlerIfAbsent("br") { AppendLinesHandler(isStripExtraWhiteSpace, 1) }

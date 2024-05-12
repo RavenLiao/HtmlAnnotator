@@ -23,6 +23,7 @@ import com.ravenl.htmlannotator.compose.css.TextDecorationCssAnnotatedHandler
 import com.ravenl.htmlannotator.compose.css.TextIndentCssAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.ImageAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.LinkAnnotatedHandler
+import com.ravenl.htmlannotator.compose.handler.ListItemAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.ParagraphTextHandler
 import com.ravenl.htmlannotator.compose.handler.PreAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.SpanTextHandler
@@ -30,7 +31,6 @@ import com.ravenl.htmlannotator.compose.styler.AnnotatedStyler
 import com.ravenl.htmlannotator.compose.styler.ParagraphTextStyler
 import com.ravenl.htmlannotator.compose.styler.buildNotOverlapList
 import com.ravenl.htmlannotator.core.handler.AppendLinesHandler
-import com.ravenl.htmlannotator.core.handler.ListItemHandler
 import com.ravenl.htmlannotator.core.handler.ParagraphHandler
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import com.ravenl.htmlannotator.core.toHtmlAnnotation
@@ -175,7 +175,7 @@ class HtmlAnnotator(
         registerHandlerIfAbsent("ol") { marginHandler }
 
         registerHandlerIfAbsent("li") {
-            ListItemHandler()
+            ListItemAnnotatedHandler()
         }
 
         registerHandlerIfAbsent("br") { AppendLinesHandler(isStripExtraWhiteSpace, 1) }

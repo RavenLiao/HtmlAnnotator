@@ -4,7 +4,7 @@ import com.ravenl.htmlannotator.core.TextStyler
 import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
 import org.jsoup.nodes.Node
 
-open class ListItemHandler : TagHandler() {
+abstract class ListItemHandler : TagHandler() {
 
     private fun getMyIndex(node: Node): Int? {
         val parent = node.parent() ?: return null
@@ -33,15 +33,46 @@ open class ListItemHandler : TagHandler() {
                 builder.append('\n')
             }
         }
-        when (node.parent()?.nodeName()) {
+    }
+
+    override fun handleTagNode(
+        builder: StringBuilder,
+        rangeList: MutableList<TextStyler>,
+        cssDeclarations: List<CSSDeclaration>?,
+        node: Node,
+        start: Int,
+        end: Int
+    ) {
+        val parent = node.parent() ?: return
+        when (parent.nodeName()) {
             "ul" -> {
-                builder.append("\u2022 ")
+                addUnorderedItem(builder, rangeList, cssDeclarations, node, start, end, parent)
             }
             "ol" -> {
                 val index = getMyIndex(node) ?: return
-                builder.append(index)
-                builder.append(". ")
+                addOrderedItem(builder, rangeList, cssDeclarations, node, start, end, parent, index)
             }
         }
     }
+
+    abstract fun addUnorderedItem(
+        builder: StringBuilder,
+        rangeList: MutableList<TextStyler>,
+        cssDeclarations: List<CSSDeclaration>?,
+        node: Node,
+        start: Int,
+        end: Int,
+        parent: Node
+    )
+
+    abstract fun addOrderedItem(
+        builder: StringBuilder,
+        rangeList: MutableList<TextStyler>,
+        cssDeclarations: List<CSSDeclaration>?,
+        node: Node,
+        start: Int,
+        end: Int,
+        parent: Node,
+        index: Int
+    )
 }
