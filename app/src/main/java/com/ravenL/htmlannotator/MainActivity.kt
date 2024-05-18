@@ -9,13 +9,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
@@ -205,7 +206,7 @@ val htmlList = listOf(
     <p>Microsoft's core products include the Windows operating system, Office productivity suite, Internet Explorer and Edge web browsers, and the Xbox gaming console. In recent years, Microsoft has also made significant investments and innovations in cloud computing, artificial intelligence, and other areas.</p>
     <p>As one of the leading companies in the technology industry, Microsoft has been driving the development and application of information technology, providing outstanding products and services to billions of users worldwide. Its influence is not only reflected in the business realm but has also deeply integrated into people's work and daily lives.</p>   
     """.trimIndent(),
-    "ol & ul" to   """
+    "ol & ul" to """
         <!DOCTYPE html>
         <html>
         <body>
@@ -257,55 +258,54 @@ fun ScreenPreview() {
 @Composable
 fun Screen() {
     var srcHtml by remember { mutableStateOf("") }
-    Column(Modifier.fillMaxSize()) {
-        TextField(
-            value = srcHtml,
-            onValueChange = { srcHtml = it },
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth()
-                .fillMaxHeight(0.3f)
-        )
-
-        LazyRow(
-            Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 8.dp)
-        ) {
-            items(htmlList) {
-                Button(onClick = { srcHtml = it.second }) {
-                    Text(text = it.first)
+    LazyVerticalGrid(
+        GridCells.Fixed(2),
+        Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        item(span = { GridItemSpan(maxLineSpan) }, contentType = 0) {
+            TextField(
+                value = srcHtml,
+                onValueChange = { srcHtml = it },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp)
+            )
+        }
+        item(span = { GridItemSpan(maxLineSpan) }, contentType = 1) {
+            LazyRow(
+                Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 8.dp)
+            ) {
+                items(htmlList) {
+                    Button(onClick = { srcHtml = it.second }) {
+                        Text(text = it.first)
+                    }
                 }
             }
         }
 
-        LazyVerticalGrid(
-            GridCells.Fixed(2),
-            Modifier
-                .padding(8.dp)
-                .fillMaxWidth()
-                .weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            item {
-                BorderBox("Compose") {
-                    HtmlImageText(
-                        html = srcHtml,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+        item(contentType = 2) {
+            BorderBox("Compose") {
+                HtmlImageText(
+                    html = srcHtml,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
+        }
 
-            item {
-                BorderBox("view") {
-                    HtmlImageTextView(
-                        html = srcHtml,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+        item(contentType = 2) {
+            BorderBox("view") {
+                HtmlImageTextView(
+                    html = srcHtml,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
 }
+
 
 @Composable
 fun BorderBox(
