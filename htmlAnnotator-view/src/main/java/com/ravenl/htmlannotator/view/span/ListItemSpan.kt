@@ -40,7 +40,7 @@ open class OrderedListItemSpan(
 
 open class UnorderedListItemSpan(
     private val drawText: String = "\u2022",
-    private val margin: Int = UnitUtil.dpToPixel(16f)
+    private val margin: Int = UnitUtil.dpToPixel(20f)
 ) : ListItemSpan() {
     override fun getLeadingMargin(first: Boolean): Int = margin
     override fun getDrawText(): String = drawText

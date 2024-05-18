@@ -23,7 +23,6 @@ import com.ravenl.htmlannotator.compose.css.TextDecorationCssAnnotatedHandler
 import com.ravenl.htmlannotator.compose.css.TextIndentCssAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.ImageAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.LinkAnnotatedHandler
-import com.ravenl.htmlannotator.compose.handler.ListItemAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.ParagraphTextHandler
 import com.ravenl.htmlannotator.compose.handler.PreAnnotatedHandler
 import com.ravenl.htmlannotator.compose.handler.SpanTextHandler
@@ -171,12 +170,6 @@ class HtmlAnnotator(
             ParagraphTextHandler { ParagraphStyle(textIndent = TextIndent(4.sp, 4.sp)) }
         }
         registerHandlerIfAbsent("blockquote") { marginHandler }
-        registerHandlerIfAbsent("ul") { marginHandler }
-        registerHandlerIfAbsent("ol") { marginHandler }
-
-        registerHandlerIfAbsent("li") {
-            ListItemAnnotatedHandler()
-        }
 
         registerHandlerIfAbsent("br") { AppendLinesHandler(isStripExtraWhiteSpace, 1) }
 

@@ -1,5 +1,7 @@
-package com.ravenl.htmlannotator.compose.handler
+package com.ravenl.htmlannotator.compose.ext.handler
 
+import com.ravenl.htmlannotator.compose.ext.styler.OrderedListStyler
+import com.ravenl.htmlannotator.compose.ext.styler.UnorderedListStyler
 import com.ravenl.htmlannotator.core.TextStyler
 import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
 import com.ravenl.htmlannotator.core.handler.ListItemHandler
@@ -15,12 +17,7 @@ open class ListItemAnnotatedHandler : ListItemHandler() {
         end: Int,
         parent: Node
     ) {
-        val text = "\u2022 "
-        if (builder[start] == '\n') {
-            builder.insert(start + 1, text)
-        } else {
-            builder.insert(start, text)
-        }
+        rangeList.add(UnorderedListStyler(start, end))
     }
 
     override fun addOrderedItem(
@@ -33,12 +30,7 @@ open class ListItemAnnotatedHandler : ListItemHandler() {
         parent: Node,
         index: Int
     ) {
-        val text = "$index. "
-        if (builder[start] == '\n') {
-            builder.insert(start + 1, text)
-        } else {
-            builder.insert(start, text)
-        }
+        rangeList.add(OrderedListStyler(index, start, end))
     }
 
 }

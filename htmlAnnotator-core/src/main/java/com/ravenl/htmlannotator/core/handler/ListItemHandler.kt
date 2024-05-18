@@ -22,19 +22,6 @@ abstract class ListItemHandler : TagHandler() {
         return null
     }
 
-    override fun beforeChildren(
-        builder: StringBuilder,
-        rangeList: MutableList<TextStyler>,
-        cssDeclarations: List<CSSDeclaration>?,
-        node: Node
-    ) {
-        if (builder.isNotEmpty()) {
-            if (builder[builder.length - 1] != '\n') {
-                builder.append('\n')
-            }
-        }
-    }
-
     override fun handleTagNode(
         builder: StringBuilder,
         rangeList: MutableList<TextStyler>,

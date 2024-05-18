@@ -41,10 +41,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import com.ravenL.htmlannotator.spanner.image.setHtmlImageText
 import com.ravenL.htmlannotator.ui.theme.HtmlAnnotatorTheme
-import com.ravenl.htmlannotator.compose.ext.state.HtmlContentState
-import com.ravenl.htmlannotator.compose.ext.state.rememberHtmlContentState
 import com.ravenl.htmlannotator.compose.ext.widgets.BasicHtmlImageText
-import com.ravenl.htmlannotator.compose.styler.ImageAnnotatedStyler
 import kotlinx.coroutines.launch
 
 
@@ -207,6 +204,45 @@ val htmlList = listOf(
     </a>
     <p>Microsoft's core products include the Windows operating system, Office productivity suite, Internet Explorer and Edge web browsers, and the Xbox gaming console. In recent years, Microsoft has also made significant investments and innovations in cloud computing, artificial intelligence, and other areas.</p>
     <p>As one of the leading companies in the technology industry, Microsoft has been driving the development and application of information technology, providing outstanding products and services to billions of users worldwide. Its influence is not only reflected in the business realm but has also deeply integrated into people's work and daily lives.</p>   
+    """.trimIndent(),
+    "ol & ul" to   """
+        <!DOCTYPE html>
+        <html>
+        <body>
+
+        <h1>The ol and ul elements</h1>
+
+        <p>The ol element defines an ordered list:</p>
+        <ol>
+          <li>Coffee11111111111111111111111111111111111111111111111111111111111</li>
+          <li>Tea</li>
+          <ul>
+          <li>Coffee</li>
+          <li>Tea</li>
+          <li>Milk</li>
+        </ul>
+          <li>Milk2222222222222222222222222222222222222222222222222222</li>
+        </ol>
+
+        <p>The ul element defines an unordered list:</p>
+        <ul>
+          <li>Coffee</li>
+          <li>Tea</li>
+          <ol>
+          <li>Coffee</li>
+          <li>Tea</li>
+          <ul>
+          <li>Coffee1111111111111111111111111111111111111111111111111111111111111111111111111111111</li>
+          <li>Tea</li>
+          <li>Milk</li>
+        </ul>
+          <li>Milk</li>
+        </ol>
+          <li>Milk</li>
+        </ul>
+
+        </body>
+        </html>
     """.trimIndent()
 )
 
@@ -299,10 +335,6 @@ fun HtmlImageText(
             contentScale = ContentScale.FillWidth
         )
     },
-    state: HtmlContentState = rememberHtmlContentState(listOf(ImageAnnotatedStyler.TAG_NAME)),
-    renderTag: @Composable ColumnScope.(annotation: AnnotatedString.Range<String>, AnnotatedString) -> Unit = { annotation, _ ->
-        imageContent(annotation.item)
-    },
     renderDefault: @Composable ColumnScope.(AnnotatedString) -> Unit = { text ->
         BasicText(
             text,
@@ -314,8 +346,6 @@ fun HtmlImageText(
     html = html,
     imageContent = imageContent,
     modifier = modifier,
-    state = state,
-    renderTag = renderTag,
     renderDefault = renderDefault
 )
 
