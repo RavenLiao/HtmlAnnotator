@@ -1,6 +1,5 @@
 package com.ravenl.htmlannotator.compose
 
-import androidx.collection.ArrayMap
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -46,9 +45,9 @@ class HtmlAnnotator(
     val isStripExtraWhiteSpace: Boolean = defaultIsStripExtraWhiteSpace
 ) {
 
-    private val handlers = ArrayMap<String, TagHandler>()
+    private val handlers = HashMap<String, TagHandler>()
 
-    private val cssHandlers = ArrayMap<String, CSSAnnotatedHandler>()
+    private val cssHandlers = HashMap<String, CSSAnnotatedHandler>()
 
     init {
         registerBuiltInHandlers(preTagHandlers)
