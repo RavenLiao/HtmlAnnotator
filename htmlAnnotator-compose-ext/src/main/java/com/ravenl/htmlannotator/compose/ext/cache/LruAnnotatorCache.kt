@@ -1,5 +1,8 @@
 package com.ravenl.htmlannotator.compose.ext.cache
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -27,4 +30,11 @@ class LruAnnotatorCache(lifecycle: Lifecycle, maxSize: Int = 3) : HtmlAnnotatorC
     }
 
     override fun get(src: String) = lruCache[src]
+}
+
+@Composable
+fun rememberLruAnnotatorCache(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
+) = remember(lifecycleOwner) {
+    LruAnnotatorCache(lifecycleOwner.lifecycle)
 }

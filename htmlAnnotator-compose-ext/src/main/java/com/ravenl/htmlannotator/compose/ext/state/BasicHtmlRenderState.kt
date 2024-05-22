@@ -8,11 +8,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import com.ravenl.htmlannotator.compose.HtmlAnnotator
 import com.ravenl.htmlannotator.compose.HtmlAnnotatorCache
 import com.ravenl.htmlannotator.compose.css.CSSAnnotatedHandler
-import com.ravenl.htmlannotator.compose.ext.cache.LruAnnotatorCache
+import com.ravenl.htmlannotator.compose.ext.cache.rememberLruAnnotatorCache
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +27,7 @@ fun rememberHtmlAnnotator(
     preTagHandlers: Map<String, TagHandler>? = HtmlAnnotator.defaultPreTagHandlers,
     preCSSHandlers: Map<String, CSSAnnotatedHandler>? = HtmlAnnotator.defaultPreCSSHandlers,
     isStripExtraWhiteSpace: Boolean = HtmlAnnotator.defaultIsStripExtraWhiteSpace,
-    cache: HtmlAnnotatorCache = LruAnnotatorCache(LocalLifecycleOwner.current.lifecycle)
+    cache: HtmlAnnotatorCache = rememberLruAnnotatorCache()
 ): HtmlAnnotator = remember(preTagHandlers, preCSSHandlers, isStripExtraWhiteSpace, cache) {
     HtmlAnnotator(cache, preTagHandlers, preCSSHandlers, isStripExtraWhiteSpace)
 }
