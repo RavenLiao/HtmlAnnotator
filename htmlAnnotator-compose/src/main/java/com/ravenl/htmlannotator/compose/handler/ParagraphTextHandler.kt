@@ -11,16 +11,6 @@ open class ParagraphTextHandler(val newStyle: () -> ParagraphStyle) : TagHandler
 
     private val paragraphStyle by lazy { newStyle() }
 
-    override fun beforeChildren(
-        builder: StringBuilder,
-        rangeList: MutableList<TextStyler>,
-        cssDeclarations: List<CSSDeclaration>?,
-        node: Node
-    ) {
-        //paragraphStyle will add line feed character auto. so mark it.
-        builder.append('\n')
-    }
-
     override fun handleTagNode(
         builder: StringBuilder,
         rangeList: MutableList<TextStyler>,
@@ -29,8 +19,6 @@ open class ParagraphTextHandler(val newStyle: () -> ParagraphStyle) : TagHandler
         start: Int,
         end: Int
     ) {
-        //remove mark line feed character
-        builder.deleteCharAt(start)
         rangeList.add(getTagStyler(node, start, end - 1))
     }
 
