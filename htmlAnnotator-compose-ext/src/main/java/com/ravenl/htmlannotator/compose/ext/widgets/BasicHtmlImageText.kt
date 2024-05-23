@@ -8,6 +8,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.ravenl.htmlannotator.compose.ext.handler.ListItemAnnotatedHandler
 import com.ravenl.htmlannotator.compose.ext.state.HtmlContentState
@@ -23,6 +24,7 @@ fun BasicHtmlImageText(
     html: String,
     imageContent: @Composable ColumnScope.(imgUrl: String) -> Unit,
     modifier: Modifier = Modifier,
+    defaultStyle: TextStyle = TextStyle.Default,
     state: HtmlContentState = rememberHtmlContentState(
         splitTags = listOf(
             ImageAnnotatedStyler.TAG_NAME,
@@ -42,19 +44,21 @@ fun BasicHtmlImageText(
                         text = annotation.item,
                         Modifier
                             .width(20.dp)
-                            .alignByBaseline()
+                            .alignByBaseline(),
+                        defaultStyle
                     )
                     BasicText(
                         text = string,
                         Modifier
                             .fillMaxWidth()
-                            .alignByBaseline()
+                            .alignByBaseline(),
+                        defaultStyle
                     )
                 }
             }
         }
     },
     renderDefault: @Composable ColumnScope.(AnnotatedString) -> Unit = { text ->
-        BasicText(text, Modifier.fillMaxWidth())
+        BasicText(text, Modifier.fillMaxWidth(), defaultStyle)
     }
-) = BasicHtmlContent(html, state = state, renderTag, modifier, renderDefault)
+) = BasicHtmlContent(html, state = state, renderTag, modifier, defaultStyle, renderDefault)

@@ -7,6 +7,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import com.ravenl.htmlannotator.compose.ext.state.HtmlContentState
 
 
@@ -16,8 +17,9 @@ fun BasicHtmlContent(
     state: HtmlContentState,
     renderTag: @Composable ColumnScope.(annotation: AnnotatedString.Range<String>, AnnotatedString) -> Unit,
     modifier: Modifier = Modifier,
+    defaultStyle: TextStyle = TextStyle.Default,
     renderDefault: @Composable ColumnScope.(AnnotatedString) -> Unit = { text ->
-        BasicText(text, Modifier.fillMaxWidth())
+        BasicText(text, Modifier.fillMaxWidth(), defaultStyle)
     }
 ): Unit = with(state) {
     srcHtml = html
