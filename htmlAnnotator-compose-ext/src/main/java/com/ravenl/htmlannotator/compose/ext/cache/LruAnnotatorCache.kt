@@ -10,7 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.ravenl.htmlannotator.compose.HtmlAnnotatorCache
 
 class LruAnnotatorCache(lifecycle: Lifecycle, maxSize: Int = 3) : HtmlAnnotatorCache {
-    val lruCache = object : LinkedHashMap<String, AnnotatedString>(maxSize, 1f, true) {
+    private val lruCache = object : LinkedHashMap<String, AnnotatedString>(maxSize, 1f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, AnnotatedString>?): Boolean {
             return size > maxSize
         }

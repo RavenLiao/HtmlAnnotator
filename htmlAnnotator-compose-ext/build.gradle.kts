@@ -43,6 +43,7 @@ dependencies {
     api(project(":htmlAnnotator-compose"))
     implementation(libs.compose.foundation)
     implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.kotlinx.immutableCollections)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
