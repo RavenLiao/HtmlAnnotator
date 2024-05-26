@@ -13,7 +13,7 @@ import com.ravenl.htmlannotator.compose.ext.state.HtmlContentState
 
 @Composable
 fun BasicHtmlContent(
-    html: String,
+    html: String?,
     state: HtmlContentState,
     renderTag: @Composable ColumnScope.(annotation: AnnotatedString.Range<String>, AnnotatedString) -> Unit,
     modifier: Modifier = Modifier,
@@ -22,10 +22,10 @@ fun BasicHtmlContent(
         BasicText(text, Modifier.fillMaxWidth(), defaultStyle)
     }
 ): Unit = with(state) {
-    srcHtml = html
+    Column(modifier) {
+        srcHtml = html
 
-    resultHtml?.also { strings ->
-        Column(modifier) {
+        resultHtml?.also { strings ->
             val tags = state.splitTags
             strings.forEach { string ->
 

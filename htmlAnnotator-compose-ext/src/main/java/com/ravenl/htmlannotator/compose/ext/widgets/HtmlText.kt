@@ -1,5 +1,7 @@
 package com.ravenl.htmlannotator.compose.ext.widgets
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.runtime.Composable
@@ -13,7 +15,7 @@ import com.ravenl.htmlannotator.compose.ext.state.rememberHtmlTextState
 
 @Composable
 fun HtmlText(
-    html: String,
+    html: String?,
     modifier: Modifier = Modifier,
     state: HtmlTextState = rememberHtmlTextState(),
     style: TextStyle = TextStyle.Default,
@@ -24,19 +26,21 @@ fun HtmlText(
     inlineContent: Map<String, InlineTextContent> = emptyMap(),
     onTextLayout: (TextLayoutResult) -> Unit = {},
 ): Unit = with(state) {
-    srcHtml = html
+    Box(modifier) {
+        srcHtml = html
 
-    resultHtml?.also { annotated ->
-        BasicText(
-            text = annotated,
-            modifier = modifier,
-            style = style,
-            onTextLayout = onTextLayout,
-            overflow = overflow,
-            softWrap = softWrap,
-            maxLines = maxLines,
-            minLines = minLines,
-            inlineContent = inlineContent
-        )
+        resultHtml?.also { annotated ->
+            BasicText(
+                text = annotated,
+                modifier = Modifier.fillMaxWidth(),
+                style = style,
+                onTextLayout = onTextLayout,
+                overflow = overflow,
+                softWrap = softWrap,
+                maxLines = maxLines,
+                minLines = minLines,
+                inlineContent = inlineContent
+            )
+        }
     }
 }

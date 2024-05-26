@@ -18,7 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -35,7 +34,7 @@ fun rememberHtmlAnnotator(
 @Stable
 abstract class BasicHtmlRenderState<R>(
     private val annotator: HtmlAnnotator,
-    var buildHtml: suspend HtmlAnnotator.(html: String) -> R
+    private val buildHtml: suspend HtmlAnnotator.(html: String) -> R
 ) : RememberObserver {
 
     private var rememberedCount = 0
@@ -54,7 +53,11 @@ abstract class BasicHtmlRenderState<R>(
         CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate).apply {
             coroutineScope = this
             launch {
-                snapshotFlow { srcHtml }.filterNotNull().collectLatest { src ->
+                snapshotFlow { srcHtml }.collectLatest { src ->
+                    if (src == null) {
+                        resultHtml = null
+                        return@collectLatest
+                    }
                     isRendering = true
                     resultHtml = withContext(Dispatchers.Default) {
                         annotator.buildHtml(src)
