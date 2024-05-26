@@ -17,6 +17,7 @@ compose-foundation = "1.6.7"
 compose-compiler = "1.5.11"
 annotation = "1.7.1"
 mavenpublish = "0.28.0"
+composeCompilerReport = "1.3.1"
 
 [libraries]
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
@@ -49,4 +50,5 @@ androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 mavenpublish = { id = "com.vanniktech.maven.publish", version.ref = "mavenpublish" }
+composeCompilerReport = { id = "dev.shreyaspatil.compose-compiler-report-generator", version.ref = "composeCompilerReport" }
 

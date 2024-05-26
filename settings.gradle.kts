@@ -1,10 +1,10 @@
 pluginManagement {
     repositories {
+        mavenCentral()
         maven { setUrl("https://maven.aliyun.com/repository/public") }  // central、jcenter
         maven { setUrl("https://maven.aliyun.com/repository/google") }  // google
 //        maven { setUrl("https://repo.huaweicloud.com/repository/maven/") }    // central、google、jcenter
         google()
-        mavenCentral()
         gradlePluginPortal()
     }
 }
