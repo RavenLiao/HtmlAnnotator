@@ -4,13 +4,16 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -347,7 +350,12 @@ fun HtmlImageText(
     imageContent = imageContent,
     modifier = modifier,
     renderDefault = renderDefault
-)
+) {
+    Box(modifier = Modifier
+        .height(200.dp)
+        .fillMaxWidth()
+        .background(Color.Cyan))
+}
 
 
 @Composable

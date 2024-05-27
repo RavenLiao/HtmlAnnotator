@@ -19,7 +19,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun rememberHtmlAnnotator(
@@ -41,8 +40,6 @@ abstract class BasicHtmlRenderState<R>(
     private var coroutineScope: CoroutineScope? = null
 
     var srcHtml: String? by mutableStateOf(null)
-    var isRendering: Boolean by mutableStateOf(false)
-        private set
     var resultHtml: R? by mutableStateOf(null)
         private set
 
@@ -58,11 +55,7 @@ abstract class BasicHtmlRenderState<R>(
                         resultHtml = null
                         return@collectLatest
                     }
-                    isRendering = true
-                    resultHtml = withContext(Dispatchers.Default) {
-                        annotator.buildHtml(src)
-                    }
-                    isRendering = false
+                    resultHtml = annotator.buildHtml(src)
                 }
             }
         }
