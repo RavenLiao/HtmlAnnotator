@@ -5,19 +5,23 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.AnnotatedString
 import com.ravenl.htmlannotator.compose.HtmlAnnotator
+import com.ravenl.htmlannotator.compose.ext.cache.HtmlAnnotatorCache
+import com.ravenl.htmlannotator.compose.ext.cache.rememberLruAnnotatorCache
 
 
 @Composable
 fun rememberHtmlTextState(
     annotator: HtmlAnnotator = rememberHtmlAnnotator(),
+    cache: HtmlAnnotatorCache<AnnotatedString> = rememberLruAnnotatorCache(),
     buildHtml: suspend HtmlAnnotator.(html: String) -> AnnotatedString = { from(it) },
 ): HtmlTextState = remember(annotator, buildHtml) {
-    HtmlTextState(annotator, buildHtml)
+    HtmlTextState(annotator, cache, buildHtml)
 }
 
 
 @Stable
 class HtmlTextState(
     annotator: HtmlAnnotator,
+    cache: HtmlAnnotatorCache<AnnotatedString>,
     buildHtml: suspend HtmlAnnotator.(html: String) -> AnnotatedString
-) : BasicHtmlRenderState<AnnotatedString>(annotator, buildHtml)
+) : BasicHtmlRenderState<AnnotatedString>(annotator, cache, buildHtml)

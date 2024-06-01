@@ -3,15 +3,13 @@ package com.ravenl.htmlannotator.compose.ext.cache
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import com.ravenl.htmlannotator.compose.HtmlAnnotatorCache
 
-class LruAnnotatorCache(lifecycle: Lifecycle, maxSize: Int = 3) : HtmlAnnotatorCache {
-    private val lruCache = object : LinkedHashMap<String, AnnotatedString>(maxSize, 1f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, AnnotatedString>?): Boolean {
+class LruAnnotatorCache<R>(lifecycle: Lifecycle, maxSize: Int = 3) : HtmlAnnotatorCache<R> {
+    private val lruCache = object : LinkedHashMap<String, R>(maxSize, 1f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, R>?): Boolean {
             return size > maxSize
         }
     }
@@ -25,7 +23,7 @@ class LruAnnotatorCache(lifecycle: Lifecycle, maxSize: Int = 3) : HtmlAnnotatorC
         })
     }
 
-    override fun put(src: String, result: AnnotatedString) {
+    override fun put(src: String, result: R) {
         lruCache[src] = result
     }
 
@@ -33,8 +31,8 @@ class LruAnnotatorCache(lifecycle: Lifecycle, maxSize: Int = 3) : HtmlAnnotatorC
 }
 
 @Composable
-fun rememberLruAnnotatorCache(
+fun <R> rememberLruAnnotatorCache(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) = remember(lifecycleOwner) {
-    LruAnnotatorCache(lifecycleOwner.lifecycle)
+    LruAnnotatorCache<R>(lifecycleOwner.lifecycle)
 }

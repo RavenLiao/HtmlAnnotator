@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package com.ravenl.htmlannotator.compose.ext.state
 
 import androidx.compose.runtime.Composable
@@ -9,9 +11,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import com.ravenl.htmlannotator.compose.HtmlAnnotator
-import com.ravenl.htmlannotator.compose.HtmlAnnotatorCache
 import com.ravenl.htmlannotator.compose.css.CSSAnnotatedHandler
-import com.ravenl.htmlannotator.compose.ext.cache.rememberLruAnnotatorCache
+import com.ravenl.htmlannotator.compose.ext.cache.HtmlAnnotatorCache
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,14 +26,14 @@ fun rememberHtmlAnnotator(
     preTagHandlers: Map<String, TagHandler>? = HtmlAnnotator.defaultPreTagHandlers,
     preCSSHandlers: Map<String, CSSAnnotatedHandler>? = HtmlAnnotator.defaultPreCSSHandlers,
     isStripExtraWhiteSpace: Boolean = HtmlAnnotator.defaultIsStripExtraWhiteSpace,
-    cache: HtmlAnnotatorCache = rememberLruAnnotatorCache()
-): HtmlAnnotator = remember(preTagHandlers, preCSSHandlers, isStripExtraWhiteSpace, cache) {
-    HtmlAnnotator(cache, preTagHandlers, preCSSHandlers, isStripExtraWhiteSpace)
+): HtmlAnnotator = remember(preTagHandlers, preCSSHandlers, isStripExtraWhiteSpace) {
+    HtmlAnnotator(preTagHandlers, preCSSHandlers, isStripExtraWhiteSpace)
 }
 
 @Stable
 abstract class BasicHtmlRenderState<R>(
     private val annotator: HtmlAnnotator,
+    private val cache: HtmlAnnotatorCache<R>,
     private val buildHtml: suspend HtmlAnnotator.(html: String) -> R
 ) : RememberObserver {
 
@@ -43,6 +44,11 @@ abstract class BasicHtmlRenderState<R>(
     var resultHtml: R? by mutableStateOf(null)
         private set
 
+    var isRendering: Boolean by mutableStateOf(false)
+        private set
+
+    private val srcFlow = snapshotFlow { srcHtml }
+
     override fun onRemembered() {
         rememberedCount++
         if (rememberedCount != 1) return
@@ -50,12 +56,25 @@ abstract class BasicHtmlRenderState<R>(
         CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate).apply {
             coroutineScope = this
             launch {
-                snapshotFlow { srcHtml }.collectLatest { src ->
+                srcFlow.collectLatest { src ->
                     if (src == null) {
                         resultHtml = null
                         return@collectLatest
                     }
-                    resultHtml = annotator.buildHtml(src)
+
+                    isRendering = true
+
+                    cache.get(src)?.also { cacheResult ->
+                        resultHtml = cacheResult
+                        isRendering = false
+                        return@collectLatest
+                    }
+
+                    annotator.buildHtml(src).also { result ->
+                        resultHtml = result
+                        isRendering = false
+                        cache.put(src, result)
+                    }
                 }
             }
         }

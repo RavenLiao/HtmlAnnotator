@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package com.ravenl.htmlannotator.compose
 
 import androidx.compose.ui.text.AnnotatedString
@@ -39,7 +41,6 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
 class HtmlAnnotator(
-    private val cache: HtmlAnnotatorCache? = null,
     preTagHandlers: Map<String, TagHandler>? = defaultPreTagHandlers,
     preCSSHandlers: Map<String, CSSAnnotatedHandler>? = defaultPreCSSHandlers,
     val isStripExtraWhiteSpace: Boolean = defaultIsStripExtraWhiteSpace
@@ -74,16 +75,9 @@ class HtmlAnnotator(
         html: String,
         baseUri: String = "",
         getExternalCSS: (suspend (link: String) -> String)? = null
-    ): AnnotatedString {
-        cache?.get(html)?.also { cacheValue ->
-            return cacheValue
-        }
-        return from(Jsoup.parse(html, baseUri), getExternalCSS).also { value ->
-            cache?.put(html, value)
-        }
-    }
+    ): AnnotatedString = from(Jsoup.parse(html, baseUri), getExternalCSS)
 
-    private suspend fun from(
+    suspend fun from(
         doc: Document,
         getExternalCSS: (suspend (link: String) -> String)? = null
     ): AnnotatedString = withContext(Dispatchers.Default) {

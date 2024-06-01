@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package com.ravenl.htmlannotator.view
 
 import android.graphics.Typeface
@@ -38,7 +40,6 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
 class HtmlSpanner(
-    private val cache: HtmlSpannerCache? = null,
     preTagHandlers: Map<String, TagHandler>? = defaultPreTagHandlers,
     preCSSHandlers: Map<String, CSSSpannedHandler>? = defaultPreCSSHandlers,
     val isStripExtraWhiteSpace: Boolean = defaultIsStripExtraWhiteSpace
@@ -81,16 +82,9 @@ class HtmlSpanner(
         html: String,
         baseUri: String = "",
         getExternalCSS: (suspend (link: String) -> String)? = null
-    ): Spannable {
-        cache?.get(html)?.also { cacheValue ->
-            return cacheValue
-        }
-        return from(Jsoup.parse(html, baseUri), getExternalCSS).also { value ->
-            cache?.put(html, value)
-        }
-    }
+    ): Spannable = from(Jsoup.parse(html, baseUri), getExternalCSS)
 
-    private suspend fun from(
+    suspend fun from(
         doc: Document,
         getExternalCSS: (suspend (link: String) -> String)? = null
     ): Spannable = withContext(Dispatchers.Default) {
