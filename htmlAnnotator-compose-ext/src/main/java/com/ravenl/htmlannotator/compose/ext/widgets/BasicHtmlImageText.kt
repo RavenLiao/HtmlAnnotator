@@ -1,11 +1,5 @@
 package com.ravenl.htmlannotator.compose.ext.widgets
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,7 +7,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -34,7 +27,7 @@ import com.ravenl.htmlannotator.core.handler.TagHandler
 @Composable
 fun BasicHtmlImageText(
     html: String?,
-    imageContent: @Composable ColumnScope.(imgUrl: String) -> Unit,
+    imageContent: @Composable (ColumnScope.(imgUrl: String) -> Unit),
     modifier: Modifier = Modifier,
     defaultStyle: TextStyle = TextStyle.Default,
     getClickUrlAction: (() -> (url: String) -> Unit)? = null,
@@ -52,7 +45,7 @@ fun BasicHtmlImageText(
             )
         )
     ),
-    renderTag: @Composable ColumnScope.(annotation: AnnotatedString.Range<String>, AnnotatedString) -> Unit = { annotation, string ->
+    renderTag: @Composable (ColumnScope.(annotation: AnnotatedString.Range<String>, AnnotatedString) -> Unit) = { annotation, string ->
         when (annotation.tag) {
             ImageAnnotatedStyler.TAG_NAME -> {
                 imageContent(annotation.item)
@@ -82,26 +75,18 @@ fun BasicHtmlImageText(
             }
         }
     },
-    renderDefault: @Composable ColumnScope.(AnnotatedString) -> Unit = { text ->
+    renderDefault: @Composable (ColumnScope.(AnnotatedString) -> Unit) = { text ->
         ClickableText(text, Modifier.fillMaxWidth(), defaultStyle) { index ->
             text.getUrlAnnotations(index, index).firstOrNull()?.item?.url?.also { url ->
                 getClickUrlAction?.invoke()?.invoke(url)
             }
         }
-    },
-    transitionSpec: AnimatedContentTransitionScope<List<AnnotatedString>?>.() -> ContentTransform = {
-        fadeIn(animationSpec = tween(220)).togetherWith(fadeOut(animationSpec = tween(90)))
-    },
-    animatedAlignment: Alignment = Alignment.Center,
-    placeHolder: (@Composable ColumnScope.() -> Unit)? = null
+    }
 ) = BasicHtmlContent(
     html,
     state = state,
     renderTag,
     modifier,
     defaultStyle,
-    renderDefault,
-    transitionSpec,
-    animatedAlignment,
-    placeHolder
+    renderDefault
 )
