@@ -15,10 +15,13 @@ import android.text.style.SubscriptSpan
 import android.text.style.SuperscriptSpan
 import android.text.style.TypefaceSpan
 import android.util.ArrayMap
+import com.fleeksoft.ksoup.Ksoup
+import com.fleeksoft.ksoup.nodes.Document
 import com.ravenl.htmlannotator.core.handler.AppendLinesHandler
 import com.ravenl.htmlannotator.core.handler.ParagraphHandler
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import com.ravenl.htmlannotator.core.toHtmlAnnotation
+import com.ravenl.htmlannotator.core.util.defaultLogger
 import com.ravenl.htmlannotator.core.util.Logger
 import com.ravenl.htmlannotator.view.css.BackgroundColorCssSpannedHandler
 import com.ravenl.htmlannotator.view.css.CSSSpannedHandler
@@ -36,8 +39,6 @@ import com.ravenl.htmlannotator.view.handler.SingleSpanHandler
 import com.ravenl.htmlannotator.view.styler.SpannedStyler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 
 class HtmlSpanner(
     preTagHandlers: Map<String, TagHandler>? = defaultPreTagHandlers,
@@ -82,7 +83,7 @@ class HtmlSpanner(
         html: String,
         baseUri: String = "",
         getExternalCSS: (suspend (link: String) -> String)? = null
-    ): Spannable = from(Jsoup.parse(html, baseUri), getExternalCSS)
+    ): Spannable = from(Ksoup.parse(html, baseUri), getExternalCSS)
 
     suspend fun from(
         doc: Document,
@@ -243,7 +244,7 @@ class HtmlSpanner(
     companion object {
         private const val TAG = "HtmlSpanner"
 
-        var logger: Logger = Logger()
+        var logger: Logger = defaultLogger()
         var defaultPreTagHandlers: Map<String, TagHandler>? = null
         var defaultPreCSSHandlers: Map<String, CSSSpannedHandler>? = null
         var defaultIsStripExtraWhiteSpace: Boolean = true

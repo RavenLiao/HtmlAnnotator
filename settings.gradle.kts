@@ -1,28 +1,55 @@
+@file:Suppress("UnstableApiUsage")
+
+rootProject.name = "HtmlAnnotator"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
     repositories {
-        mavenCentral()
+        maven {
+            setUrl("https://maven.aliyun.com/repository/google")
+            mavenContent {
+                includeGroupAndSubgroups("androidx")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+            }
+        }  // google
         maven { setUrl("https://maven.aliyun.com/repository/public") }  // central、jcenter
-        maven { setUrl("https://maven.aliyun.com/repository/google") }  // google
-//        maven { setUrl("https://repo.huaweicloud.com/repository/maven/") }    // central、google、jcenter
-        google()
+        maven { setUrl("https://maven.aliyun.com/repository/gradle-plugin") }
+        google {
+            mavenContent {
+                includeGroupAndSubgroups("androidx")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+            }
+        }
+        mavenCentral()
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
-    @Suppress("UnstableApiUsage")
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    @Suppress("UnstableApiUsage")
     repositories {
+        maven {
+            setUrl("https://maven.aliyun.com/repository/google")
+            mavenContent {
+                includeGroupAndSubgroups("androidx")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+            }
+        }  // google
         maven { setUrl("https://maven.aliyun.com/repository/public") }  // central、jcenter
-        maven { setUrl("https://maven.aliyun.com/repository/google") }  // google
-//        maven { setUrl("https://repo.huaweicloud.com/repository/maven/") }    // central、google、jcenter
-        google()
+        google {
+            mavenContent {
+                includeGroupAndSubgroups("androidx")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+            }
+        }
         mavenCentral()
     }
 }
 
-rootProject.name = "HtmlAnnotator"
-include(":app")
+include(":composeApp")
 include(":htmlAnnotator-core")
 include(":htmlAnnotator-compose")
 include(":htmlAnnotator-compose-ext")

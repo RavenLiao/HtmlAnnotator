@@ -1,12 +1,12 @@
 package com.ravenl.htmlannotator.view.handler
 
+import com.fleeksoft.ksoup.nodes.Node
 import com.ravenl.htmlannotator.core.TextStyler
 import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
 import com.ravenl.htmlannotator.core.handler.ListItemHandler
 import com.ravenl.htmlannotator.view.span.OrderedListItemSpan
 import com.ravenl.htmlannotator.view.span.UnorderedListItemSpan
 import com.ravenl.htmlannotator.view.styler.SpannedStyler
-import org.jsoup.nodes.Node
 
 open class ListItemSpannedHandler : ListItemHandler() {
     override fun beforeChildren(

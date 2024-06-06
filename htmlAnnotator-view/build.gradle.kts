@@ -1,14 +1,14 @@
 plugins {
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.jetbrains.kotlin.android)
 }
 
 android {
     namespace = "com.ravenl.htmlannotator.view"
-    compileSdk = property("compileSdk").toString().toInt()
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = property("minSdk").toString().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -34,7 +34,5 @@ android {
 
 dependencies {
     api(project(":htmlAnnotator-core"))
-    implementation(libs.androidx.annotation)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.bundles.android.test)
+    implementation(libs.androidx.annotation.jvm)
 }

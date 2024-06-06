@@ -4,7 +4,7 @@ import com.ravenl.htmlannotator.core.TextStyler
 import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
 import com.ravenl.htmlannotator.core.handler.NewLineHandler
 import com.ravenl.htmlannotator.view.styler.SpannedStyler
-import org.jsoup.nodes.Node
+import com.fleeksoft.ksoup.nodes.Node
 
 open class MultipleSpanHandler(addNewLineAtBefore: Boolean = true, val newSpans: () -> List<Any>) :
     NewLineHandler(addNewLineAtBefore) {

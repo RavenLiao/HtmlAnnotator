@@ -3,7 +3,6 @@ package com.ravenl.htmlannotator.view.css
 import android.graphics.Color
 import android.text.style.BackgroundColorSpan
 import androidx.annotation.ColorInt
-import com.ravenl.htmlannotator.core.css.CSSColorParser
 import com.ravenl.htmlannotator.view.HtmlSpanner.Companion.logger
 import com.ravenl.htmlannotator.view.styler.SpannedStyler
 
