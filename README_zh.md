@@ -1,12 +1,12 @@
 # HtmlAnnotator
 
-![Platform][platform_image]
+![badge-android](http://img.shields.io/badge/platform-android-6EDB8D.svg?style=flat)![badge-ios](http://img.shields.io/badge/platform-ios-CDCDCD.svg?style=flat)![badge-jvm](http://img.shields.io/badge/platform-jvm-DB413D.svg?style=flat)![badge-linux](http://img.shields.io/badge/platform-linux-2D3F6C.svg?style=flat)
 [![API][min_api_image]][min_api_link]
 [![License][license_image]][license_link]
 
 翻译：[English](README.md)
 
-HtmlAnnotator 是 Android 上的一个HTML渲染库，而且支持解析CSS样式，支持 Jetpack Compose和View。
+**HtmlAnnotator** 是基于Kotlin Multiplatform和Compose Multiplatform上的一个HTML渲染库，而且支持解析CSS样式。也支持Android的View系统。
 
 
 ## 特点
@@ -16,7 +16,7 @@ HtmlAnnotator 是 Android 上的一个HTML渲染库，而且支持解析CSS样�
 * 支持多种CSS样式来源：内联、内部样式表、甚至是外部样式表
 * 支持转换结果缓存
 * 支持 Jetpack Compose
-* 基于 Kotlin 及 Kotlin 协程编写
+* 基于 Kotlin Multiplatform 及 Kotlin 协程编写
 
 ## 默认解析器
 ###  Jetpack Compose
@@ -137,19 +137,19 @@ dependencies {
 
 #### R8 / Proguard
 
-该库不需要配置任何混淆规则，但你可能需要为间接依赖的 [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/jvm/resources/META-INF/proguard/coroutines.pro)和[Jsoup](https://github.com/jhy/jsoup/)添加混淆配置
+该库不需要配置任何混淆规则，但你可能需要为间接依赖的 [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/jvm/resources/META-INF/proguard/coroutines.pro)和[ksoup](https://github.com/fleeksoft/ksoup)添加混淆配置
 
 ## 快速上手
 
-引入`htmlAnnotator-compose-ext`与`coil-compose`
+引入`htmlAnnotator-compose-ext`与`kamel-image`
 
 ```kotlin
 //实现对带图片的HTML文档的解析
 BasicHtmlImageText(
     html = srcHtml,
     imageContent = { imgUrl ->
-        AsyncImage(
-            imgUrl,
+        KamelImage(
+            asyncPainterResource(data = imgUrl),
             null,
             Modifier
                 .fillMaxWidth()
@@ -160,17 +160,20 @@ BasicHtmlImageText(
 )
 ```
 
+更多请查看[DemoScreen](./composeApp/src/commonMain/kotlin/DemoScreen.kt#L293)
+
+Android的View部分请查看[MainActivity](./composeApp/src/androidMain/kotlin/com/ravenl/htmlannotator/MainActivity.kt#L59)
+
 ## 特别感谢
 
 * [NightWhistler/HtmlSpanner](https://github.com/NightWhistler/HtmlSpanner): HtmlAnnotator参考了来自HtmlSpanner的部分代码，包括解析转换、解析器部分
-* [jhy/jsoup](https://github.com/jhy/jsoup/): HtmlAnnotator借助Jsoup解析HTML,以及选出最终的CSS
+* [ksoup](https://github.com/fleeksoft/ksoup): HtmlAnnotator借助ksoup解析HTML,以及选出最终的CSS
 * [panpf/sketch](https://github.com/panpf/sketch): 参考了该项目的构建发布部分配置
 
 ## License
 
 Apache 2.0. 有关详细信息，请参阅 [LICENSE](LICENSE) 文件.
 
-[platform_image]: https://img.shields.io/badge/Platform-Android-brightgreen.svg
 
 [license_image]: https://img.shields.io/badge/License-Apache%202-blue.svg
 
@@ -180,6 +183,6 @@ Apache 2.0. 有关详细信息，请参阅 [LICENSE](LICENSE) 文件.
 
 [version_link]: https://repo1.maven.org/maven2/io/github/ravenliao/htmlannotator/
 
-[min_api_image]: https://img.shields.io/badge/API-16%2B-orange.svg
+[min_api_image]: https://img.shields.io/badge/API-14%2B-orange.svg
 
-[min_api_link]: https://android-arsenal.com/api?level=16
+[min_api_link]: https://android-arsenal.com/api?level=14
