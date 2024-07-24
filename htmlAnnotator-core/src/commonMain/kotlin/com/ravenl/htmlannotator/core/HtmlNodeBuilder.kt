@@ -12,7 +12,6 @@ import com.ravenl.htmlannotator.core.css.model.StyleOrigin
 import com.ravenl.htmlannotator.core.css.parseCssDeclarations
 import com.ravenl.htmlannotator.core.css.parseCssRuleBlock
 import com.ravenl.htmlannotator.core.handler.TagHandler
-import com.ravenl.htmlannotator.core.model.CumulativeStyler
 import com.ravenl.htmlannotator.core.model.HtmlNode
 import com.ravenl.htmlannotator.core.model.StringNode
 import com.ravenl.htmlannotator.core.model.StyleNode
@@ -63,7 +62,7 @@ suspend fun toHtmlNode(
         null
     }
 
-    suspend fun handleNode(node: Node, parentCumulativeStyler: List<CumulativeStyler>?): HtmlNode {
+    suspend fun handleNode(node: Node): HtmlNode {
         yield()
         if (node is TextNode) {
             return StringNode(node.text())
@@ -91,34 +90,18 @@ suspend fun toHtmlNode(
             }
         }.ifEmpty { null }
 
-        if (parentCumulativeStyler != null) {
-            if (stylers != null) {
-                for (index in stylers.indices) {
-                    val styler = stylers[index]
-                    if (styler is CumulativeStyler) {
-                        parentCumulativeStyler
-                            .firstOrNull { it.name == styler.name }?.also { parent ->
-                                stylers[index] = styler.buildCumulative(parent.value)
-                            }
-                    }
-                }
-            }
-        }
-
         val children = ArrayList<HtmlNode>().apply {
             handler?.handleChildrenNode.let { handle ->
                 if (handle != null) {
                     handle(node, cssDeclarations)
                 } else {
-                    val cumulativeStyler =
-                        stylers?.filterIsInstance<CumulativeStyler>()?.ifEmpty { null }
                     for (childNode in node.childNodes()) {
                         if (childNode is TextNode) {
                             childNode.text().trim().ifBlank {
                                 null
                             }?.let(::StringNode)?.also(::add)
                         } else {
-                            add(handleNode(childNode, cumulativeStyler))
+                            add(handleNode(childNode))
                         }
                     }
                 }
@@ -129,7 +112,7 @@ suspend fun toHtmlNode(
         return StyleNode(stylers, children)
     }
 
-    handleNode(body, null)
+    handleNode(body)
 }
 
 private suspend fun buildExternalCSSBlock(

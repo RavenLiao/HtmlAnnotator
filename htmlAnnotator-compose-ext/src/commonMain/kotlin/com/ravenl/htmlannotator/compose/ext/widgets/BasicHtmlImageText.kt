@@ -13,14 +13,17 @@ import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ravenl.htmlannotator.compose.ext.handler.AnnotatedMarginHandler
 import com.ravenl.htmlannotator.compose.ext.handler.ListItemAnnotatedHandler
 import com.ravenl.htmlannotator.compose.ext.state.HtmlContentState
 import com.ravenl.htmlannotator.compose.ext.state.rememberHtmlAnnotator
 import com.ravenl.htmlannotator.compose.ext.state.rememberHtmlContentState
+import com.ravenl.htmlannotator.compose.ext.styler.MarginStyler
 import com.ravenl.htmlannotator.compose.ext.styler.OrderedListStyler
 import com.ravenl.htmlannotator.compose.ext.styler.UnorderedListStyler
 import com.ravenl.htmlannotator.compose.styler.ImageAnnotatedStyler
-import com.ravenl.htmlannotator.core.handler.TagHandler
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 
 @OptIn(ExperimentalTextApi::class)
@@ -31,26 +34,71 @@ fun BasicHtmlImageText(
     modifier: Modifier = Modifier,
     defaultStyle: TextStyle = TextStyle.Default,
     getClickUrlAction: (() -> (url: String) -> Unit)? = null,
+    splitTags: ImmutableList<String> = persistentListOf(
+        ImageAnnotatedStyler.TAG_NAME,
+        OrderedListStyler.TAG_NAME,
+        UnorderedListStyler.TAG_NAME,
+        MarginStyler.TOP,
+        MarginStyler.LEFT,
+        MarginStyler.RIGHT,
+        MarginStyler.BOTTOM,
+    ),
     state: HtmlContentState = rememberHtmlContentState(
-        splitTags = listOf(
-            ImageAnnotatedStyler.TAG_NAME,
-            OrderedListStyler.TAG_NAME,
-            UnorderedListStyler.TAG_NAME
-        ),
+        splitTags = splitTags,
         annotator = rememberHtmlAnnotator(
             preTagHandlers = mapOf(
                 "li" to ListItemAnnotatedHandler(),
-                "ul" to TagHandler(),
-                "ol" to TagHandler()
+                "ul" to AnnotatedMarginHandler {
+                    listOf(MarginStyler.Left("4em"))
+                },
+                "ol" to AnnotatedMarginHandler {
+                    listOf(MarginStyler.Left("4em"))
+                }
             )
         )
     ),
-    renderTag: @Composable (ColumnScope.(annotation: AnnotatedString.Range<String>, AnnotatedString) -> Unit) = { annotation, string ->
-        when (annotation.tag) {
-            ImageAnnotatedStyler.TAG_NAME -> {
-                imageContent(annotation.item)
+    renderDefault: @Composable ColumnScope.(AnnotatedString) -> Unit = { text ->
+        ClickableText(text, Modifier.fillMaxWidth(), defaultStyle) { index ->
+            text.getUrlAnnotations(index, index).firstOrNull()?.item?.url?.also { url ->
+                getClickUrlAction?.invoke()?.invoke(url)
             }
-            OrderedListStyler.TAG_NAME, UnorderedListStyler.TAG_NAME -> {
+        }
+    },
+    renderTag: @Composable ColumnScope.(annotation: AnnotatedString.Range<String>, AnnotatedString) -> Unit = { annotation, string ->
+        defaultImageTextRenderTag(
+            annotation,
+            string,
+            imageContent,
+            defaultStyle,
+            getClickUrlAction,
+            renderDefault
+        )
+    }
+) = BasicHtmlContent(
+    html,
+    state = state,
+    renderTag,
+    modifier,
+    defaultStyle,
+    renderDefault
+)
+
+@OptIn(ExperimentalTextApi::class)
+@Composable
+fun ColumnScope.defaultImageTextRenderTag(
+    annotation: AnnotatedString.Range<String>,
+    string: AnnotatedString,
+    imageContent: @Composable (ColumnScope.(imgUrl: String) -> Unit),
+    defaultStyle: TextStyle = TextStyle.Default,
+    getClickUrlAction: (() -> (url: String) -> Unit)? = null,
+    renderDefault: @Composable (ColumnScope.(AnnotatedString) -> Unit)
+) {
+    when (annotation.tag) {
+        ImageAnnotatedStyler.TAG_NAME -> {
+            imageContent(annotation.item)
+        }
+        OrderedListStyler.TAG_NAME, UnorderedListStyler.TAG_NAME -> {
+            MarginWrapper(string, defaultStyle) {
                 Row(Modifier.fillMaxWidth()) {
                     BasicText(
                         text = annotation.item,
@@ -74,19 +122,10 @@ fun BasicHtmlImageText(
                 }
             }
         }
-    },
-    renderDefault: @Composable (ColumnScope.(AnnotatedString) -> Unit) = { text ->
-        ClickableText(text, Modifier.fillMaxWidth(), defaultStyle) { index ->
-            text.getUrlAnnotations(index, index).firstOrNull()?.item?.url?.also { url ->
-                getClickUrlAction?.invoke()?.invoke(url)
+        MarginStyler.TOP, MarginStyler.LEFT, MarginStyler.RIGHT, MarginStyler.BOTTOM -> {
+            MarginWrapper(string, defaultStyle) {
+                renderDefault(this@defaultImageTextRenderTag, string)
             }
         }
     }
-) = BasicHtmlContent(
-    html,
-    state = state,
-    renderTag,
-    modifier,
-    defaultStyle,
-    renderDefault
-)
+}
