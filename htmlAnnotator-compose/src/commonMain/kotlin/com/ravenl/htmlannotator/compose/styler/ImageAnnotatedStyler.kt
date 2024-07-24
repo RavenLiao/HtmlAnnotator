@@ -1,12 +1,17 @@
 package com.ravenl.htmlannotator.compose.styler
 
 import androidx.compose.ui.text.AnnotatedString
+import com.ravenl.htmlannotator.core.handler.ImageStyler
 
-class ImageAnnotatedStyler(private val imageUrl: String, start: Int, end: Int) :
-    AnnotatedStyler(start, end) {
+class ImageAnnotatedStyler(imageUrl: String) : IBeforeChildrenAnnotatedStyler,
+    ImageStyler(imageUrl) {
 
-    override fun addStyle(builder: AnnotatedString.Builder) {
-        builder.addStringAnnotation(TAG_NAME, imageUrl, start, end)
+    override fun beforeChildren(builder: AnnotatedString.Builder) {
+        with(builder) {
+            pushStringAnnotation(TAG_NAME, imageUrl)
+            append(PLACE_HOLDER)
+            pop()
+        }
     }
 
     companion object {

@@ -16,8 +16,8 @@ import kotlinx.collections.immutable.toImmutableList
 fun rememberHtmlContentState(
     splitTags: List<String>,
     annotator: HtmlAnnotator = rememberHtmlAnnotator(),
-    cache: HtmlAnnotatorCache<List<AnnotatedString>> = rememberLifecycle(),
-    buildHtml: suspend HtmlAnnotator.(html: String) -> List<AnnotatedString> = {
+    cache: HtmlAnnotatorCache<ImmutableList<AnnotatedString>> = rememberLifecycle(),
+    buildHtml: suspend HtmlAnnotator.(html: String) -> ImmutableList<AnnotatedString> = {
         from(it).splitByAnnotation(splitTags)
     },
 ): HtmlContentState = remember(annotator, buildHtml) {
@@ -28,14 +28,14 @@ fun rememberHtmlContentState(
 @Stable
 class HtmlContentState(
     annotator: HtmlAnnotator,
-    cache: HtmlAnnotatorCache<List<AnnotatedString>>,
+    cache: HtmlAnnotatorCache<ImmutableList<AnnotatedString>>,
     val splitTags: ImmutableList<String>,
-    buildHtml: suspend HtmlAnnotator.(html: String) -> List<AnnotatedString>
-) : BasicHtmlRenderState<List<AnnotatedString>>(annotator, cache, buildHtml) {
+    buildHtml: suspend HtmlAnnotator.(html: String) -> ImmutableList<AnnotatedString>
+) : BasicHtmlRenderState<ImmutableList<AnnotatedString>>(annotator, cache, buildHtml) {
     constructor(
         annotator: HtmlAnnotator,
-        cache: HtmlAnnotatorCache<List<AnnotatedString>>,
+        cache: HtmlAnnotatorCache<ImmutableList<AnnotatedString>>,
         splitTags: List<String>,
-        buildHtml: suspend HtmlAnnotator.(html: String) -> List<AnnotatedString>
+        buildHtml: suspend HtmlAnnotator.(html: String) -> ImmutableList<AnnotatedString>
     ) : this(annotator, cache, splitTags.toImmutableList(), buildHtml)
 }

@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import com.ravenl.htmlannotator.compose.ext.state.HtmlContentState
+import kotlinx.collections.immutable.ImmutableList
 
 
 @Composable
@@ -24,9 +25,31 @@ fun BasicHtmlContent(
 ): Unit = with(state) {
     srcHtml = html
 
+    resultHtml?.let { result ->
+        BasicHtmlContentUI(
+            result,
+            state.splitTags,
+            renderTag,
+            modifier,
+            defaultStyle,
+            renderDefault
+        )
+    }
+}
+
+@Composable
+fun BasicHtmlContentUI(
+    resultHtml: ImmutableList<AnnotatedString>,
+    tags: ImmutableList<String>,
+    renderTag: @Composable ColumnScope.(annotation: AnnotatedString.Range<String>, AnnotatedString) -> Unit,
+    modifier: Modifier = Modifier,
+    defaultStyle: TextStyle = TextStyle.Default,
+    renderDefault: @Composable ColumnScope.(AnnotatedString) -> Unit = { text ->
+        BasicText(text, Modifier.fillMaxWidth(), defaultStyle)
+    }
+) {
     Column(modifier) {
-        resultHtml?.forEach { string ->
-            val tags = state.splitTags
+        resultHtml.forEach { string ->
             var annotation: AnnotatedString.Range<String>? = null
             for (tag in tags) {
                 annotation =

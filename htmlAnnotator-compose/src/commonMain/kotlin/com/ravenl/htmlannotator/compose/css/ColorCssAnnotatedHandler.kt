@@ -3,19 +3,14 @@ package com.ravenl.htmlannotator.compose.css
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import com.ravenl.htmlannotator.compose.HtmlAnnotator.Companion.logger
-import com.ravenl.htmlannotator.compose.styler.AnnotatedStyler
-import com.ravenl.htmlannotator.compose.styler.SpanTextStyler
+import com.ravenl.htmlannotator.compose.styler.SpanStyleStyler
+import com.ravenl.htmlannotator.core.model.TextStyler
 
 open class ColorCssAnnotatedHandler : CSSAnnotatedHandler() {
 
-    override fun addCssStyler(
-        rangeList: MutableList<AnnotatedStyler>,
-        start: Int,
-        end: Int,
-        value: String
-    ) {
+    override fun addStyle(list: MutableList<TextStyler>, value: String) {
         parseColor(value)?.also { color ->
-            rangeList.add(SpanTextStyler(start, end, SpanStyle(color = color)))
+            list.add(SpanStyleStyler { SpanStyle(color = color) })
         }
     }
 

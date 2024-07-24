@@ -2,6 +2,9 @@ package com.ravenl.htmlannotator.compose.ext
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 
 /**
@@ -10,16 +13,16 @@ import androidx.compose.ui.text.buildAnnotatedString
  *
  * @param tags The list of tags to split the annotated string by, in order of priority.
  */
-fun AnnotatedString.splitByAnnotation(tags: List<String>): List<AnnotatedString> =
+fun AnnotatedString.splitByAnnotation(tags: List<String>): ImmutableList<AnnotatedString> =
     when (tags.size) {
-        0 -> listOf(this)
+        0 -> persistentListOf(this)
         1 -> splitByAnnotation(tags.first())
         else -> {
             tags.fold(sequenceOf(this)) { acc, tag ->
                 acc.flatMap { annotatedString ->
                     annotatedString.splitByAnnotation(tag)
                 }
-            }.toList()
+            }.toImmutableList()
         }
     }
 
@@ -33,16 +36,16 @@ fun AnnotatedString.splitByAnnotation(tags: List<String>): List<AnnotatedString>
  *
  * @param tag The tag to split the annotated string by.
  */
-fun AnnotatedString.splitByAnnotation(tag: String): List<AnnotatedString> {
+fun AnnotatedString.splitByAnnotation(tag: String): ImmutableList<AnnotatedString> {
     if (isEmpty()) {
-        return listOf(this)
+        return persistentListOf(this)
     }
 
     // +1 to including annotation at last
     val ranges = getStringAnnotations(tag, 0, length + 1)
 
     if (ranges.isEmpty()) {
-        return listOf(this)
+        return persistentListOf(this)
     }
 
 
@@ -66,7 +69,7 @@ fun AnnotatedString.splitByAnnotation(tag: String): List<AnnotatedString> {
         if (index < length) {
             yield(subSequence(index, length))
         }
-    }.toList()
+    }.toImmutableList()
 }
 
 fun AnnotatedString.sortAnnotations(

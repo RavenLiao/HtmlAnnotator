@@ -1,8 +1,8 @@
 package com.ravenl.htmlannotator.core.handler
 
-import com.ravenl.htmlannotator.core.TextStyler
-import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
 import com.fleeksoft.ksoup.nodes.Node
+import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
+import com.ravenl.htmlannotator.core.model.TextStyler
 
 abstract class ListItemHandler : TagHandler() {
 
@@ -20,43 +20,34 @@ abstract class ListItemHandler : TagHandler() {
         return null
     }
 
-    override fun handleTagNode(
-        builder: StringBuilder,
-        rangeList: MutableList<TextStyler>,
-        cssDeclarations: List<CSSDeclaration>?,
+    override fun addTagStylers(
+        list: MutableList<TextStyler>,
         node: Node,
-        start: Int,
-        end: Int
+        cssDeclarations: List<CSSDeclaration>?
     ) {
         val parent = node.parent() ?: return
         when (parent.nodeName()) {
             "ul" -> {
-                addUnorderedItem(builder, rangeList, cssDeclarations, node, start, end, parent)
+                addUnorderedItem(list, node, cssDeclarations, parent)
             }
             "ol" -> {
                 val index = getMyIndex(node) ?: return
-                addOrderedItem(builder, rangeList, cssDeclarations, node, start, end, parent, index)
+                addOrderedItem(list, node, cssDeclarations, parent, index)
             }
         }
     }
 
     abstract fun addUnorderedItem(
-        builder: StringBuilder,
-        rangeList: MutableList<TextStyler>,
-        cssDeclarations: List<CSSDeclaration>?,
+        list: MutableList<TextStyler>,
         node: Node,
-        start: Int,
-        end: Int,
+        cssDeclarations: List<CSSDeclaration>?,
         parent: Node
     )
 
     abstract fun addOrderedItem(
-        builder: StringBuilder,
-        rangeList: MutableList<TextStyler>,
-        cssDeclarations: List<CSSDeclaration>?,
+        list: MutableList<TextStyler>,
         node: Node,
-        start: Int,
-        end: Int,
+        cssDeclarations: List<CSSDeclaration>?,
         parent: Node,
         index: Int
     )

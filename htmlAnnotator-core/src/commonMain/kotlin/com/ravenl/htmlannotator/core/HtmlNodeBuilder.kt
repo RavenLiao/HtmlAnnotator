@@ -4,14 +4,19 @@ import com.fleeksoft.ksoup.nodes.Document
 import com.fleeksoft.ksoup.nodes.Element
 import com.fleeksoft.ksoup.nodes.Node
 import com.fleeksoft.ksoup.nodes.TextNode
+import com.ravenl.htmlannotator.core.css.CSSHandler
 import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
 import com.ravenl.htmlannotator.core.css.model.CSSDeclarationWithPriority
 import com.ravenl.htmlannotator.core.css.model.CSSRuleSet
-import com.ravenl.htmlannotator.core.css.model.CSSStyleBlock
 import com.ravenl.htmlannotator.core.css.model.StyleOrigin
 import com.ravenl.htmlannotator.core.css.parseCssDeclarations
 import com.ravenl.htmlannotator.core.css.parseCssRuleBlock
 import com.ravenl.htmlannotator.core.handler.TagHandler
+import com.ravenl.htmlannotator.core.model.CumulativeStyler
+import com.ravenl.htmlannotator.core.model.HtmlNode
+import com.ravenl.htmlannotator.core.model.StringNode
+import com.ravenl.htmlannotator.core.model.StyleNode
+import com.ravenl.htmlannotator.core.model.TextStyler
 import com.ravenl.htmlannotator.core.util.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -22,17 +27,15 @@ import kotlinx.coroutines.yield
 
 private const val TAG = "HtmlAnnotationBuilder"
 
-suspend fun toHtmlAnnotation(
+suspend fun toHtmlNode(
     doc: Document,
-    handles: Map<String, TagHandler>,
+    tagHandles: Map<String, TagHandler>,
+    cssHandles: Map<String, CSSHandler>,
     logger: Logger,
     getExternalCSS: (suspend (link: String) -> String)?
-): HtmlAnnotation = withContext(Dispatchers.Default) {
+): HtmlNode = withContext(Dispatchers.Default) {
     val body = doc.body()
     yield()
-    val stringBuilder = StringBuilder()
-    val rangeList = mutableListOf<TextStyler>()
-    val cssDeque = ArrayDeque<CSSStyleBlock>()
     val internalCSS = buildInternalCSSBlock(doc)
     yield()
     val externalCss = getExternalCSS?.let { get ->
@@ -60,10 +63,14 @@ suspend fun toHtmlAnnotation(
         null
     }
 
-    suspend fun handleNode(node: Node) {
+    suspend fun handleNode(node: Node, parentCumulativeStyler: List<CumulativeStyler>?): HtmlNode {
         yield()
+        if (node is TextNode) {
+            return StringNode(node.text())
+        }
+
         val name = node.nodeName()
-        val handler = handles[name]
+        val handler = tagHandles[name]
         if (handler == null && name != "body" && name != "#comment") {
             logger.w(TAG) {
                 "unsupported node:${node.nodeName()}"
@@ -71,37 +78,58 @@ suspend fun toHtmlAnnotation(
         }
         val cssDeclarations = buildFinalCSS(cssMap, node)
 
-        val lengthBefore = stringBuilder.length
-        handler?.beforeChildren(stringBuilder, rangeList, cssDeclarations, node)
+        val stylers = ArrayList<TextStyler>().apply {
+            handler?.run {
+                addTagStylers(this@apply, node, cssDeclarations)
+            }
+            cssDeclarations?.let { list ->
+                list.forEach { css ->
+                    cssHandles[css.property]?.run {
+                        addStyle(this@apply, css.value)
+                    }
+                }
+            }
+        }.ifEmpty { null }
 
-        if (handler?.handlerRendersContent() != true) {
-            for (childNode in node.childNodes()) {
-                if (childNode is TextNode) {
-                    stringBuilder.append(childNode.text())
-                } else {
-                    handleNode(childNode)
+        if (parentCumulativeStyler != null) {
+            if (stylers != null) {
+                for (index in stylers.indices) {
+                    val styler = stylers[index]
+                    if (styler is CumulativeStyler) {
+                        parentCumulativeStyler
+                            .firstOrNull { it.name == styler.name }?.also { parent ->
+                                stylers[index] = styler.buildCumulative(parent.value)
+                            }
+                    }
                 }
             }
         }
 
-        val lengthAfter = stringBuilder.length
-        handler?.handleTagNode(
-            stringBuilder,
-            rangeList,
-            cssDeclarations,
-            node,
-            lengthBefore,
-            lengthAfter
-        )
-
-        cssDeclarations?.also { list ->
-            cssDeque.addLast(CSSStyleBlock(lengthBefore, stringBuilder.length, list))
+        val children = ArrayList<HtmlNode>().apply {
+            handler?.handleChildrenNode.let { handle ->
+                if (handle != null) {
+                    handle(node, cssDeclarations)
+                } else {
+                    val cumulativeStyler =
+                        stylers?.filterIsInstance<CumulativeStyler>()?.ifEmpty { null }
+                    for (childNode in node.childNodes()) {
+                        if (childNode is TextNode) {
+                            childNode.text().trim().ifBlank {
+                                null
+                            }?.let(::StringNode)?.also(::add)
+                        } else {
+                            add(handleNode(childNode, cumulativeStyler))
+                        }
+                    }
+                }
+            }
         }
+
+
+        return StyleNode(stylers, children)
     }
 
-    handleNode(body)
-
-    HtmlAnnotation(stringBuilder.toString(), rangeList, cssDeque)
+    handleNode(body, null)
 }
 
 private suspend fun buildExternalCSSBlock(

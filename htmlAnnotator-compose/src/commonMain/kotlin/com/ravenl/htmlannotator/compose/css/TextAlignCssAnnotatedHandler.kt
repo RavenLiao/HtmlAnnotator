@@ -3,19 +3,13 @@ package com.ravenl.htmlannotator.compose.css
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.style.TextAlign
 import com.ravenl.htmlannotator.compose.HtmlAnnotator.Companion.logger
-import com.ravenl.htmlannotator.compose.styler.AnnotatedStyler
-import com.ravenl.htmlannotator.compose.styler.ParagraphTextStyler
+import com.ravenl.htmlannotator.compose.styler.ParagraphStyleStyler
+import com.ravenl.htmlannotator.core.model.TextStyler
 
 open class TextAlignCssAnnotatedHandler : CSSAnnotatedHandler() {
-
-    override fun addCssStyler(
-        rangeList: MutableList<AnnotatedStyler>,
-        start: Int,
-        end: Int,
-        value: String
-    ) {
+    override fun addStyle(list: MutableList<TextStyler>, value: String) {
         parse(value)?.also { align ->
-            rangeList.add(ParagraphTextStyler(start, end, ParagraphStyle(textAlign = align)))
+            list.add(ParagraphStyleStyler { ParagraphStyle(textAlign = align) })
         }
     }
 

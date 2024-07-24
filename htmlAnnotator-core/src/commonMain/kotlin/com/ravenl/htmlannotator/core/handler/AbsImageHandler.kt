@@ -1,27 +1,20 @@
 package com.ravenl.htmlannotator.core.handler
 
 
-import com.ravenl.htmlannotator.core.TextStyler
-import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
 import com.fleeksoft.ksoup.nodes.Node
+import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
+import com.ravenl.htmlannotator.core.model.TextStyler
 
 abstract class AbsImageHandler : TagHandler() {
-
-    override fun handleTagNode(
-        builder: StringBuilder,
-        rangeList: MutableList<TextStyler>,
-        cssDeclarations: List<CSSDeclaration>?,
+    override fun addTagStylers(
+        list: MutableList<TextStyler>,
         node: Node,
-        start: Int,
-        end: Int
+        cssDeclarations: List<CSSDeclaration>?
     ) {
-        builder.append(PLACE_HOLDER)
-        rangeList.add(
+        list.add(
             getImageStyler(
                 node.attr("src"),
-                cssDeclarations,
-                end,
-                end + PLACE_HOLDER.length
+                cssDeclarations
             )
         )
     }
@@ -29,10 +22,10 @@ abstract class AbsImageHandler : TagHandler() {
     abstract fun getImageStyler(
         imageUrl: String,
         cssDeclarations: List<CSSDeclaration>?,
-        start: Int,
-        end: Int
-    ): TextStyler
+    ): ImageStyler
+}
 
+abstract class ImageStyler(val imageUrl: String) : TextStyler {
     companion object {
         const val PLACE_HOLDER = "\uD83D\uDDBC\uFE0F"
     }

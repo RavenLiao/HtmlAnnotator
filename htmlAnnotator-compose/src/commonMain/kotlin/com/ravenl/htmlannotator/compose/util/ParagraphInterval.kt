@@ -1,6 +1,5 @@
-package com.ravenl.htmlannotator.compose.styler
+package com.ravenl.htmlannotator.compose.util
 
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
@@ -8,43 +7,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.TextUnit
 
-class ParagraphTextStyler(start: Int, end: Int, val paragraphStyle: ParagraphStyle) :
-    AnnotatedStyler(start, end) {
-
+data class ParagraphInterval(
+    val start: Int,
+    val end: Int,
+    val style: ParagraphStyle
+) {
     var priority: Int = 0
-
-    override fun addStyle(builder: AnnotatedString.Builder) {
-        builder.addStyle(paragraphStyle, start, end)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ParagraphTextStyler) return false
-
-        if (start != other.start) return false
-        if (end != other.end) return false
-        if (paragraphStyle != other.paragraphStyle) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = paragraphStyle.hashCode()
-        result = 31 * result + start
-        result = 31 * result + end
-        return result
-    }
-
-    override fun toString(): String {
-        return "ParagraphTextStyler(start=$start, end=$end, paragraphStyle=$paragraphStyle)"
-    }
 }
 
 /**
  * Additional line breaks may be introduced
  * @see ParagraphStyle Once a portion of the text is marked with a ParagraphStyle, that portion will be separated from the remaining as if a line feed character was added.
  */
-fun List<ParagraphTextStyler>.buildNotOverlapList(totalLength: Int): List<ParagraphTextStyler> {
+fun List<ParagraphInterval>.buildNotOverlapList(totalLength: Int): List<ParagraphInterval> {
     if (size <= 1) {
         return this
     }
@@ -72,23 +47,23 @@ fun List<ParagraphTextStyler>.buildNotOverlapList(totalLength: Int): List<Paragr
     }
 }
 
-internal fun List<ParagraphTextStyler>.filterIncludeList(
+internal fun List<ParagraphInterval>.filterIncludeList(
     start: Int,
     end: Int
-): List<ParagraphTextStyler>? = filter { styler ->
+): List<ParagraphInterval>? = filter { styler ->
     styler.start < end && styler.end > start
 }.ifEmpty { null }
 
 
-internal fun List<ParagraphTextStyler>.mergeWithPriority(
+internal fun List<ParagraphInterval>.mergeWithPriority(
     start: Int,
     end: Int
-): ParagraphTextStyler? {
+): ParagraphInterval? {
     if (isEmpty()) {
         return null
     }
     if (size == 1) {
-        return ParagraphTextStyler(start, end, first().paragraphStyle)
+        return ParagraphInterval(start, end, first().style)
     }
 
     val sorted = sortedByDescending { it.priority }
@@ -108,10 +83,10 @@ internal fun List<ParagraphTextStyler>.mergeWithPriority(
         return null
     }
 
-    return ParagraphTextStyler(
+    return ParagraphInterval(
         start = start,
         end = end,
-        paragraphStyle = ParagraphStyle(
+        style = ParagraphStyle(
             textAlign = textAlign ?: TextAlign.Unspecified,
             textDirection = textDirection ?: TextDirection.Unspecified,
             lineHeight = lineHeight ?: TextUnit.Unspecified,
@@ -125,12 +100,12 @@ internal fun List<ParagraphTextStyler>.mergeWithPriority(
     )
 }
 
-internal inline fun <T> List<ParagraphTextStyler>.getFirstValidOrNull(
+internal inline fun <T> List<ParagraphInterval>.getFirstValidOrNull(
     defaultValue: T,
     map: ParagraphStyle.() -> T
 ): T? {
     for (e in this) {
-        val value = e.paragraphStyle.map()
+        val value = e.style.map()
         if (value != defaultValue) {
             return value
         }

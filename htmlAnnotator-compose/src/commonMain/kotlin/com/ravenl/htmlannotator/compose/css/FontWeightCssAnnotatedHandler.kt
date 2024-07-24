@@ -3,20 +3,14 @@ package com.ravenl.htmlannotator.compose.css
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import com.ravenl.htmlannotator.compose.HtmlAnnotator.Companion.logger
-import com.ravenl.htmlannotator.compose.styler.AnnotatedStyler
-import com.ravenl.htmlannotator.compose.styler.SpanTextStyler
+import com.ravenl.htmlannotator.compose.styler.SpanStyleStyler
+import com.ravenl.htmlannotator.core.model.TextStyler
 import kotlin.math.roundToInt
 
 open class FontWeightCssAnnotatedHandler : CSSAnnotatedHandler() {
-
-    override fun addCssStyler(
-        rangeList: MutableList<AnnotatedStyler>,
-        start: Int,
-        end: Int,
-        value: String
-    ) {
+    override fun addStyle(list: MutableList<TextStyler>, value: String) {
         parse(value)?.also { weight ->
-            rangeList.add(SpanTextStyler(start, end, SpanStyle(fontWeight = weight)))
+            list.add(SpanStyleStyler { SpanStyle(fontWeight = weight) })
         }
     }
 

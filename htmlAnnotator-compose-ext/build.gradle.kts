@@ -34,8 +34,8 @@ kotlin {
         commonMain.dependencies {
             api(project(":htmlAnnotator-compose"))
             implementation(compose.foundation)
-            implementation(libs.kotlinx.immutableCollections)
             implementation(libs.androidx.lifecycle.common)
+            api(libs.kotlinx.immutableCollections)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

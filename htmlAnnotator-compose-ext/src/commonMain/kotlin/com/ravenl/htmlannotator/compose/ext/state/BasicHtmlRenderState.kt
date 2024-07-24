@@ -25,9 +25,8 @@ import kotlinx.coroutines.launch
 fun rememberHtmlAnnotator(
     preTagHandlers: Map<String, TagHandler>? = HtmlAnnotator.defaultPreTagHandlers,
     preCSSHandlers: Map<String, CSSAnnotatedHandler>? = HtmlAnnotator.defaultPreCSSHandlers,
-    isStripExtraWhiteSpace: Boolean = HtmlAnnotator.defaultIsStripExtraWhiteSpace,
-): HtmlAnnotator = remember(preTagHandlers, preCSSHandlers, isStripExtraWhiteSpace) {
-    HtmlAnnotator(preTagHandlers, preCSSHandlers, isStripExtraWhiteSpace)
+): HtmlAnnotator = remember(preTagHandlers, preCSSHandlers) {
+    HtmlAnnotator(preTagHandlers, preCSSHandlers)
 }
 
 @Stable

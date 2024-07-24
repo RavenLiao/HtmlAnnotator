@@ -36,7 +36,7 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-            implementation(project(":htmlAnnotator-view"))
+//            implementation(project(":htmlAnnotator-view"))
             implementation(libs.coil.compose)
         }
         commonMain.dependencies {

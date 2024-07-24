@@ -19,6 +19,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import com.fleeksoft.ksoup.Ksoup
 import com.ravenl.htmlannotator.compose.ext.widgets.BasicHtmlImageText
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
@@ -240,8 +242,37 @@ fun DemoScreen(
         }
     }
 ) {
-    var srcHtml by remember { mutableStateOf("") }
-    val lazyContent = htmlContent(srcHtml)
+    var srcHtml by remember { mutableStateOf("""
+<span>span Text</span>
+<span>span Text</span>
+<div>div Text</div>
+<div>div Text</div>
+<p>Paragraph Text</p>
+<p>Paragraph Text</p>
+
+<div>div1 Text</div>
+<p>Paragraph Text</p>
+<div>div2 Text</div>
+<span>span Text</span>
+<div>div3 Text</div>
+<p>Paragraph Text</p>
+
+<p>Paragraph Text</p>
+<div>div1 Text</div>
+<p>Paragraph Text</p>
+<span>span Text</span>
+
+<span>span Text</span>
+<p>Paragraph Text</p>
+<span>span Text</span>
+<div>div1 Text</div>
+    """.trimIndent()) }
+    val formatHtml by remember(srcHtml) {
+        derivedStateOf {
+            Ksoup.parse(srcHtml).html()
+        }
+    }
+    val lazyContent = htmlContent(formatHtml)
     LazyVerticalGrid(
         GridCells.Fixed(2),
         Modifier.fillMaxSize(),

@@ -1,7 +1,7 @@
 package com.ravenl.htmlannotator.view.handler
 
 import com.fleeksoft.ksoup.nodes.Node
-import com.ravenl.htmlannotator.core.TextStyler
+import com.ravenl.htmlannotator.core.model.TextStyler
 import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
 import com.ravenl.htmlannotator.core.handler.ListItemHandler
 import com.ravenl.htmlannotator.view.span.OrderedListItemSpan

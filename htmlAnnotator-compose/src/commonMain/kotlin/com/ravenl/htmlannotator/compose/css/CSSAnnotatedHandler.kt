@@ -1,7 +1,5 @@
 package com.ravenl.htmlannotator.compose.css
 
-import com.ravenl.htmlannotator.compose.styler.AnnotatedStyler
+import com.ravenl.htmlannotator.core.css.CSSHandler
 
-abstract class CSSAnnotatedHandler {
-    abstract fun addCssStyler(rangeList: MutableList<AnnotatedStyler>, start: Int, end: Int, value: String)
-}
+abstract class CSSAnnotatedHandler : CSSHandler

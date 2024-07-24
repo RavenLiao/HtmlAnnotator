@@ -3,19 +3,13 @@ package com.ravenl.htmlannotator.compose.css
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
 import com.ravenl.htmlannotator.compose.HtmlAnnotator
-import com.ravenl.htmlannotator.compose.styler.AnnotatedStyler
-import com.ravenl.htmlannotator.compose.styler.SpanTextStyler
+import com.ravenl.htmlannotator.compose.styler.SpanStyleStyler
+import com.ravenl.htmlannotator.core.model.TextStyler
 
 open class TextDecorationCssAnnotatedHandler : CSSAnnotatedHandler() {
-
-    override fun addCssStyler(
-        rangeList: MutableList<AnnotatedStyler>,
-        start: Int,
-        end: Int,
-        value: String
-    ) {
+    override fun addStyle(list: MutableList<TextStyler>, value: String) {
         parse(value)?.also { decoration ->
-            rangeList.add(SpanTextStyler(start, end, SpanStyle(textDecoration = decoration)))
+            list.add(SpanStyleStyler { SpanStyle(textDecoration = decoration) })
         }
     }
 

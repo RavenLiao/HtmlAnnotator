@@ -1,7 +1,7 @@
 package com.ravenl.htmlannotator.view.handler
 
 import android.text.style.TypefaceSpan
-import com.ravenl.htmlannotator.core.TextStyler
+import com.ravenl.htmlannotator.core.model.TextStyler
 import com.ravenl.htmlannotator.core.handler.AbsPreHandler
 import com.ravenl.htmlannotator.view.styler.SpannedStyler
 import com.fleeksoft.ksoup.nodes.Node

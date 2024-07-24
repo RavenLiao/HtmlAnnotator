@@ -1,6 +1,6 @@
 package com.ravenl.htmlannotator.view.handler
 
-import com.ravenl.htmlannotator.core.TextStyler
+import com.ravenl.htmlannotator.core.model.TextStyler
 import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
 import com.ravenl.htmlannotator.core.handler.NewLineHandler
 import com.ravenl.htmlannotator.view.styler.SpannedStyler
