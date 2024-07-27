@@ -141,16 +141,16 @@ dependencies {
 
 ## 快速上手
 
-引入`htmlAnnotator-compose-ext`与`kamel-image`
+引入`htmlAnnotator-compose-ext`与`sketch`
 
 ```kotlin
 //实现对带图片的HTML文档的解析
 BasicHtmlImageText(
     html = srcHtml,
     imageContent = { imgUrl ->
-        KamelImage(
-            asyncPainterResource(data = imgUrl),
-            null,
+        AsyncImage(
+            uri = it,
+            contentDescription = "photo",
             Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),

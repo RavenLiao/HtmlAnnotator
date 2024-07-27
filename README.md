@@ -144,15 +144,15 @@ This library doesn't require any specific Proguard rules to be configured, but y
 
 ## Quickly Started
 
-Include `htmlAnnotator-compose-ext` and `kamel-image`
+Include `htmlAnnotator-compose-ext` and `sketch`
 ```kotlin
 // Implement parsing of HTML documents with images
 BasicHtmlImageText(
     html = srcHtml,
     imageContent = { imgUrl ->
-        KamelImage(
-            asyncPainterResource(data = imgUrl),
-            null,
+        AsyncImage(
+            uri = it,
+            contentDescription = "photo",
             Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
