@@ -32,9 +32,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.fleeksoft.ksoup.Ksoup
+import com.github.panpf.sketch.AsyncImage
 import com.ravenl.htmlannotator.compose.ext.widgets.BasicHtmlImageText
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 
 
 val htmlList = listOf(
@@ -326,9 +325,9 @@ fun HtmlImageText(
     html: String,
     modifier: Modifier = Modifier,
     imageContent: @Composable ColumnScope.(imgUrl: String) -> Unit = {
-        KamelImage(
-            asyncPainterResource(data = it),
-            null,
+        AsyncImage(
+            uri = it,
+            contentDescription = "photo",
             Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),

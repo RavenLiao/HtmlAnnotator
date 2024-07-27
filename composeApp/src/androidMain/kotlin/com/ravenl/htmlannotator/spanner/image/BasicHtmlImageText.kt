@@ -3,8 +3,10 @@ package com.ravenl.htmlannotator.spanner.image
 import android.graphics.drawable.Drawable
 import android.text.Spannable
 import android.widget.TextView
-import coil.Coil
-import coil.request.ImageRequest
+import androidx.core.graphics.drawable.toDrawable
+import com.github.panpf.sketch.AndroidBitmapImage
+import com.github.panpf.sketch.request.ImageRequest
+import com.github.panpf.sketch.sketch
 import com.ravenl.htmlannotator.spanner.replaceSpan
 import com.ravenl.htmlannotator.view.HtmlSpanner
 import kotlinx.coroutines.Dispatchers
@@ -34,14 +36,17 @@ suspend fun TextView.setHtmlImageText(
         val spannable = htmlSpanner.buildHtml(html)
         text = spannable
         spannable.run {
-            val loader = Coil.imageLoader(context)
+            val loader = context.sketch
             getSpans(0, spannable.length, StatefulImageSpan.Loading::class.java).map { span ->
                 async(Dispatchers.IO) {
-                    val request = ImageRequest.Builder(context)
-                        .data(span.source)
-                        .size(width, 1000)
+                    val request = ImageRequest.Builder(context, span.source)
+                        .resize(width, width)
                         .build()
-                    replaceSpan(span, loader.execute(request).drawable.let { drawable ->
+                    val result =
+                        (loader.execute(request).image as? AndroidBitmapImage)?.bitmap?.toDrawable(
+                            context.resources
+                        )
+                    replaceSpan(span, result.let { drawable ->
                         if (drawable != null) {
                             drawable.apply {
                                 setBounds(0, 0, intrinsicWidth, intrinsicHeight)

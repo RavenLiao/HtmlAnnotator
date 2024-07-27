@@ -14,9 +14,7 @@ ksoup = "0.1.2"
 annotationJvm = "1.8.0"
 mavenpublish = "0.28.0"
 lifecycleCommon = "2.8.1"
-coil-compose = "2.6.0"
-kamel-image = "0.9.5"
-ktor = "2.3.11"
+sketchCompose = "4.0.0-alpha04"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -26,9 +24,7 @@ ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jvm", version.ref = "annotationJvm" }
 androidx-lifecycle-common = { group = "androidx.lifecycle", name = "lifecycle-common", version.ref = "lifecycleCommon" }
-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
-kamel-image = { module = "media.kamel:kamel-image", version.ref = "kamel-image" }
-ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+sketch-compose = { module = "io.github.panpf.sketch4:sketch-compose", version.ref = "sketchCompose" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

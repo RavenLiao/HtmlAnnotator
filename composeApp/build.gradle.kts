@@ -37,12 +37,10 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(project(":htmlAnnotator-view"))
-            implementation(libs.coil.compose)
         }
         commonMain.dependencies {
             implementation(project(":htmlAnnotator-compose-ext"))
-            implementation(libs.kamel.image)
-            implementation(libs.ktor.client.cio)
+            implementation(libs.sketch.compose)
             implementation(compose.material)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
