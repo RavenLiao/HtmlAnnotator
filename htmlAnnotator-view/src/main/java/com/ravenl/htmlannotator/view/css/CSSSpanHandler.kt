@@ -1,12 +1,5 @@
 package com.ravenl.htmlannotator.view.css
 
-import com.ravenl.htmlannotator.view.styler.SpannedStyler
+import com.ravenl.htmlannotator.core.css.CSSHandler
 
-abstract class CSSSpannedHandler {
-    abstract fun addCssStyler(
-        rangeList: MutableList<SpannedStyler>,
-        start: Int,
-        end: Int,
-        value: String
-    )
-}
+abstract class CSSSpannedHandler : CSSHandler

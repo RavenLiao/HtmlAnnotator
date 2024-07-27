@@ -3,19 +3,15 @@ package com.ravenl.htmlannotator.view.css
 import android.graphics.Color
 import android.text.style.BackgroundColorSpan
 import androidx.annotation.ColorInt
+import com.ravenl.htmlannotator.core.model.TextStyler
 import com.ravenl.htmlannotator.view.HtmlSpanner.Companion.logger
-import com.ravenl.htmlannotator.view.styler.SpannedStyler
+import com.ravenl.htmlannotator.view.styler.SpanStyler
 
 open class BackgroundColorCssSpannedHandler : CSSSpannedHandler() {
 
-    override fun addCssStyler(
-        rangeList: MutableList<SpannedStyler>,
-        start: Int,
-        end: Int,
-        value: String
-    ) {
+    override fun addStyle(list: MutableList<TextStyler>, value: String) {
         parseColor(value)?.also { color ->
-            rangeList.add(SpannedStyler(start, end, BackgroundColorSpan(color)))
+            list.add(SpanStyler(BackgroundColorSpan(color)))
         }
     }
 

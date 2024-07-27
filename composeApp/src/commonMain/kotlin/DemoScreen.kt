@@ -223,7 +223,32 @@ val htmlList = listOf(
 
         </body>
         </html>
-    """.trimIndent()
+    """.trimIndent(),
+    "span & p & div" to """
+        <span>span Text</span>
+        <span>span Text</span>
+        <div>div Text</div>
+        <div>div Text</div>
+        <p>Paragraph Text</p>
+        <p>Paragraph Text</p>
+        
+        <div>div1 Text</div>
+        <p>Paragraph Text</p>
+        <div>div2 Text</div>
+        <span>span Text</span>
+        <div>div3 Text</div>
+        <p>Paragraph Text</p>
+        
+        <p>Paragraph Text</p>
+        <div>div1 Text</div>
+        <p>Paragraph Text</p>
+        <span>span Text</span>
+        
+        <span>span Text</span>
+        <p>Paragraph Text</p>
+        <span>span Text</span>
+        <div>div1 Text</div>
+    """.trimIndent(),
 )
 
 
@@ -242,31 +267,7 @@ fun DemoScreen(
         }
     }
 ) {
-    var srcHtml by remember { mutableStateOf("""
-<span>span Text</span>
-<span>span Text</span>
-<div>div Text</div>
-<div>div Text</div>
-<p>Paragraph Text</p>
-<p>Paragraph Text</p>
-
-<div>div1 Text</div>
-<p>Paragraph Text</p>
-<div>div2 Text</div>
-<span>span Text</span>
-<div>div3 Text</div>
-<p>Paragraph Text</p>
-
-<p>Paragraph Text</p>
-<div>div1 Text</div>
-<p>Paragraph Text</p>
-<span>span Text</span>
-
-<span>span Text</span>
-<p>Paragraph Text</p>
-<span>span Text</span>
-<div>div1 Text</div>
-    """.trimIndent()) }
+    var srcHtml by remember { mutableStateOf("") }
     val formatHtml by remember(srcHtml) {
         derivedStateOf {
             Ksoup.parse(srcHtml).html()

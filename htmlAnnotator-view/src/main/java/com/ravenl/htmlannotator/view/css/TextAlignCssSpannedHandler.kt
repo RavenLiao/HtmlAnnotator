@@ -2,19 +2,15 @@ package com.ravenl.htmlannotator.view.css
 
 import android.text.Layout
 import android.text.style.AlignmentSpan
+import com.ravenl.htmlannotator.core.model.TextStyler
 import com.ravenl.htmlannotator.view.HtmlSpanner.Companion.logger
-import com.ravenl.htmlannotator.view.styler.SpannedStyler
+import com.ravenl.htmlannotator.view.styler.SpanStyler
 
 open class TextAlignCssSpannedHandler : CSSSpannedHandler() {
 
-    override fun addCssStyler(
-        rangeList: MutableList<SpannedStyler>,
-        start: Int,
-        end: Int,
-        value: String
-    ) {
+    override fun addStyle(list: MutableList<TextStyler>, value: String) {
         parse(value)?.also { align ->
-            rangeList.add(SpannedStyler(start, end, AlignmentSpan.Standard(align)))
+            list.add(SpanStyler(AlignmentSpan.Standard(align)))
         }
     }
 

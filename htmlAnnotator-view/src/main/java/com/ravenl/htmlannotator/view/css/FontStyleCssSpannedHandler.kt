@@ -1,19 +1,15 @@
 package com.ravenl.htmlannotator.view.css
 
 import android.text.style.TypefaceSpan
+import com.ravenl.htmlannotator.core.model.TextStyler
 import com.ravenl.htmlannotator.view.HtmlSpanner.Companion.logger
-import com.ravenl.htmlannotator.view.styler.SpannedStyler
+import com.ravenl.htmlannotator.view.styler.SpanStyler
 
 open class FontStyleCssSpannedHandler : CSSSpannedHandler() {
 
-    override fun addCssStyler(
-        rangeList: MutableList<SpannedStyler>,
-        start: Int,
-        end: Int,
-        value: String
-    ) {
+    override fun addStyle(list: MutableList<TextStyler>, value: String) {
         parse(value)?.also { span ->
-            rangeList.add(SpannedStyler(start, end, span))
+            list.add(SpanStyler(span))
         }
     }
 

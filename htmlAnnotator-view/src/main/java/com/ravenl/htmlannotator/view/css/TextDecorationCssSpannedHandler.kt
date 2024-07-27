@@ -2,21 +2,17 @@ package com.ravenl.htmlannotator.view.css
 
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
+import com.ravenl.htmlannotator.core.model.TextStyler
 import com.ravenl.htmlannotator.view.HtmlSpanner.Companion.logger
-import com.ravenl.htmlannotator.view.styler.SpannedStyler
+import com.ravenl.htmlannotator.view.styler.SpanStyler
 
 open class TextDecorationCssSpannedHandler : CSSSpannedHandler() {
 
-    override fun addCssStyler(
-        rangeList: MutableList<SpannedStyler>,
-        start: Int,
-        end: Int,
-        value: String
-    ) {
+    override fun addStyle(list: MutableList<TextStyler>, value: String) {
         parse(value)?.also { decoration ->
             decoration.map {
-                SpannedStyler(start, end, decoration)
-            }.also(rangeList::addAll)
+                SpanStyler(decoration)
+            }.also(list::addAll)
         }
     }
 

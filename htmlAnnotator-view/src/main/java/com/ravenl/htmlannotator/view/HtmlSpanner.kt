@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.os.Build
 import android.text.Layout
 import android.text.Spannable
+import android.text.Spannable.SPAN_INCLUSIVE_EXCLUSIVE
 import android.text.SpannableStringBuilder
 import android.text.style.AlignmentSpan
 import android.text.style.LeadingMarginSpan
@@ -17,12 +18,13 @@ import android.text.style.TypefaceSpan
 import android.util.ArrayMap
 import com.fleeksoft.ksoup.Ksoup
 import com.fleeksoft.ksoup.nodes.Document
-import com.ravenl.htmlannotator.core.handler.AppendLinesHandler
-import com.ravenl.htmlannotator.core.handler.ParagraphHandler
 import com.ravenl.htmlannotator.core.handler.TagHandler
-import com.ravenl.htmlannotator.core.toHtmlAnnotation
-import com.ravenl.htmlannotator.core.util.defaultLogger
+import com.ravenl.htmlannotator.core.model.HtmlNode
+import com.ravenl.htmlannotator.core.model.StringNode
+import com.ravenl.htmlannotator.core.model.StyleNode
+import com.ravenl.htmlannotator.core.toHtmlNode
 import com.ravenl.htmlannotator.core.util.Logger
+import com.ravenl.htmlannotator.core.util.defaultLogger
 import com.ravenl.htmlannotator.view.css.BackgroundColorCssSpannedHandler
 import com.ravenl.htmlannotator.view.css.CSSSpannedHandler
 import com.ravenl.htmlannotator.view.css.ColorCssSpannedHandler
@@ -31,19 +33,28 @@ import com.ravenl.htmlannotator.view.css.FontStyleCssSpannedHandler
 import com.ravenl.htmlannotator.view.css.TextAlignCssSpannedHandler
 import com.ravenl.htmlannotator.view.css.TextDecorationCssSpannedHandler
 import com.ravenl.htmlannotator.view.css.TextIndentCssSpannedHandler
+import com.ravenl.htmlannotator.view.handler.AppendLinesHandler
 import com.ravenl.htmlannotator.view.handler.LinkSpannedHandler
 import com.ravenl.htmlannotator.view.handler.ListItemSpannedHandler
 import com.ravenl.htmlannotator.view.handler.MultipleSpanHandler
+import com.ravenl.htmlannotator.view.handler.ParagraphHandler
 import com.ravenl.htmlannotator.view.handler.PreSpannedHandler
 import com.ravenl.htmlannotator.view.handler.SingleSpanHandler
+import com.ravenl.htmlannotator.view.styler.IAfterChildrenSpannedStyler
+import com.ravenl.htmlannotator.view.styler.IAtChildrenAfterSpannedStyler
+import com.ravenl.htmlannotator.view.styler.IAtChildrenBeforeSpannedStyler
+import com.ravenl.htmlannotator.view.styler.IBeforeChildrenSpannedStyler
+import com.ravenl.htmlannotator.view.styler.ParagraphEndStyler
+import com.ravenl.htmlannotator.view.styler.ParagraphStartStyler
+import com.ravenl.htmlannotator.view.styler.SpanStyler
 import com.ravenl.htmlannotator.view.styler.SpannedStyler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 
 class HtmlSpanner(
     preTagHandlers: Map<String, TagHandler>? = defaultPreTagHandlers,
     preCSSHandlers: Map<String, CSSSpannedHandler>? = defaultPreCSSHandlers,
-    val isStripExtraWhiteSpace: Boolean = defaultIsStripExtraWhiteSpace
 ) {
 
     private val handlers: MutableMap<String, TagHandler>
@@ -89,34 +100,119 @@ class HtmlSpanner(
         doc: Document,
         getExternalCSS: (suspend (link: String) -> String)? = null
     ): Spannable = withContext(Dispatchers.Default) {
-        val (body, tagStylers, cssBlocks) = toHtmlAnnotation(doc, handlers, logger, getExternalCSS)
-        SpannableStringBuilder(body).apply {
-            tagStylers.forEach { src ->
-                val styler = src as? SpannedStyler
-                if (styler != null) {
-                    styler.addStyle(this)
-                } else {
-                    logger.e(TAG) { "TagStyler is not SpannedStyler: $src" }
-                }
-            }
+        val root = toHtmlNode(doc, handlers, cssHandlers, logger, getExternalCSS)
+        SpannableStringBuilder().apply {
+            handleNodeParagraph(root)
 
-            val cssStylerList = ArrayList<SpannedStyler>()
-            cssBlocks.forEach { block ->
-                block.declarations.forEach { declaration ->
-                    with(declaration) {
-                        val cssHandler = cssHandlers[property]
-                        if (cssHandler != null) {
-                            cssHandler.addCssStyler(cssStylerList, block.start, block.end, value)
-                        } else {
-                            logger.w(TAG) { "unsupported css: $property: $value" }
+            handleNode(root)
+        }
+    }
+
+    private suspend fun handleNodeParagraph(node: HtmlNode) {
+        yield()
+        when (node) {
+            is StringNode -> {
+                return
+            }
+            is StyleNode -> {
+                val children = node.children
+                if (children.isNullOrEmpty()) {
+                    return
+                }
+
+                for (i in children.indices) {
+                    val currentNode = children[i]
+
+                    if (currentNode !is StyleNode) continue
+                    val currentStylers = currentNode.stylers ?: continue
+                    val previousNode = if (i > 0) {
+                        children[i - 1] as? StyleNode
+                    } else {
+                        null
+                    }
+
+                    fun isPreviousNodeHadEnd(extraLine: Boolean) =
+                        previousNode?.stylers?.any { it is ParagraphEndStyler && it.extraLine == extraLine }
+
+                    val isPreviousNodeHadEndWithExtraLine = isPreviousNodeHadEnd(true) == true
+                    val isPreviousNodeHadEndNoExtraLine = isPreviousNodeHadEnd(false) == true
+
+                    if (isPreviousNodeHadEndWithExtraLine
+                        || isPreviousNodeHadEndNoExtraLine && currentStylers.any { it is ParagraphStartStyler && !it.extraLine }
+                    ) {
+                        currentStylers.removeAll { it is ParagraphStartStyler }
+                    }
+                    if (isPreviousNodeHadEndNoExtraLine) {
+                        for (index in currentStylers.indices) {
+                            val styler = currentStylers[index]
+                            if (styler is ParagraphStartStyler && styler.extraLine) {
+                                currentStylers[index] = ParagraphStartStyler(false)
+                            }
                         }
                     }
-                }
-            }
 
-            cssStylerList.forEach { styler ->
-                styler.addStyle(this)
+                    // Recursively handle children of the current node
+                    handleNodeParagraph(currentNode)
+                }
+
             }
+        }
+    }
+
+
+    private suspend fun SpannableStringBuilder.handleNode(node: HtmlNode) {
+        yield()
+        when (node) {
+            is StringNode -> {
+                append(node.string)
+            }
+            is StyleNode -> {
+                handleStyleNode(node)
+            }
+        }
+    }
+
+
+    private suspend fun SpannableStringBuilder.handleStyleNode(
+        node: StyleNode
+    ) {
+        suspend fun appendChildren() {
+            node.children?.forEach { child ->
+                handleNode(child)
+            }
+        }
+
+
+        val stylers = node.stylers?.asSequence()?.filterIsInstance<SpannedStyler>()
+        if (stylers == null) {
+            appendChildren()
+            return
+        }
+
+        stylers.filterIsInstance<IBeforeChildrenSpannedStyler>().forEach {
+            it.beforeChildren(this)
+        }
+
+
+        val spanStylers = stylers.filterIsInstance<SpanStyler>().toList()
+        val start = length
+
+        stylers.filterIsInstance<IAtChildrenBeforeSpannedStyler>().forEach {
+            it.atChildrenBefore(this)
+        }
+
+        appendChildren()
+
+        stylers.filterIsInstance<IAtChildrenAfterSpannedStyler>().forEach {
+            it.atChildrenAfter(this)
+        }
+
+        for (spanStyler in spanStylers) {
+            setSpan(spanStyler.span, start, length, SPAN_INCLUSIVE_EXCLUSIVE)
+        }
+
+        stylers.filterIsInstance<IAfterChildrenSpannedStyler>().forEach {
+            it.afterChildren(this)
         }
     }
 
@@ -158,13 +254,11 @@ class HtmlSpanner(
             ListItemSpannedHandler()
         }
 
-        registerHandlerIfAbsent("br") { AppendLinesHandler(isStripExtraWhiteSpace, 1) }
+        registerHandlerIfAbsent("br") { AppendLinesHandler(1) }
 
 
-        val pHandler by lazy(boldHandler) { ParagraphHandler() }
-
-        registerHandlerIfAbsent("p") { pHandler }
-        registerHandlerIfAbsent("div") { pHandler }
+        registerHandlerIfAbsent("p") { ParagraphHandler(true) }
+        registerHandlerIfAbsent("div") { ParagraphHandler(false) }
 
 
         registerHandlerIfAbsent("h1") {
@@ -190,7 +284,7 @@ class HtmlSpanner(
         registerHandlerIfAbsent("tt") { SingleSpanHandler { TypefaceSpan("monospace") } }
 
 
-        registerHandlerIfAbsent("pre") { PreSpannedHandler(isStripExtraWhiteSpace) }
+        registerHandlerIfAbsent("pre") { PreSpannedHandler() }
 
 
         registerHandlerIfAbsent("big") {
@@ -247,6 +341,5 @@ class HtmlSpanner(
         var logger: Logger = defaultLogger()
         var defaultPreTagHandlers: Map<String, TagHandler>? = null
         var defaultPreCSSHandlers: Map<String, CSSSpannedHandler>? = null
-        var defaultIsStripExtraWhiteSpace: Boolean = true
     }
 }

@@ -1,50 +1,34 @@
 package com.ravenl.htmlannotator.view.handler
 
 import com.fleeksoft.ksoup.nodes.Node
-import com.ravenl.htmlannotator.core.model.TextStyler
 import com.ravenl.htmlannotator.core.css.model.CSSDeclaration
 import com.ravenl.htmlannotator.core.handler.ListItemHandler
+import com.ravenl.htmlannotator.core.model.TextStyler
 import com.ravenl.htmlannotator.view.span.OrderedListItemSpan
 import com.ravenl.htmlannotator.view.span.UnorderedListItemSpan
-import com.ravenl.htmlannotator.view.styler.SpannedStyler
+import com.ravenl.htmlannotator.view.styler.NewLineStyler
+import com.ravenl.htmlannotator.view.styler.SpanStyler
 
 open class ListItemSpannedHandler : ListItemHandler() {
-    override fun beforeChildren(
-        builder: StringBuilder,
-        rangeList: MutableList<TextStyler>,
-        cssDeclarations: List<CSSDeclaration>?,
-        node: Node
-    ) {
-        if (builder.isNotEmpty()) {
-            if (builder[builder.length - 1] != '\n') {
-                builder.append('\n')
-            }
-        }
-    }
 
     override fun addUnorderedItem(
-        builder: StringBuilder,
-        rangeList: MutableList<TextStyler>,
-        cssDeclarations: List<CSSDeclaration>?,
+        list: MutableList<TextStyler>,
         node: Node,
-        start: Int,
-        end: Int,
+        cssDeclarations: List<CSSDeclaration>?,
         parent: Node
     ) {
-        rangeList.add(SpannedStyler(start, end, UnorderedListItemSpan()))
+        list.add(NewLineStyler)
+        list.add(SpanStyler(UnorderedListItemSpan()))
     }
 
     override fun addOrderedItem(
-        builder: StringBuilder,
-        rangeList: MutableList<TextStyler>,
-        cssDeclarations: List<CSSDeclaration>?,
+        list: MutableList<TextStyler>,
         node: Node,
-        start: Int,
-        end: Int,
+        cssDeclarations: List<CSSDeclaration>?,
         parent: Node,
         index: Int
     ) {
-        rangeList.add(SpannedStyler(start, end, OrderedListItemSpan(index)))
+        list.add(NewLineStyler)
+        list.add(SpanStyler(OrderedListItemSpan(index)))
     }
-
 }

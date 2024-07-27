@@ -2,19 +2,15 @@ package com.ravenl.htmlannotator.view.css
 
 import android.text.style.ForegroundColorSpan
 import androidx.annotation.ColorInt
+import com.ravenl.htmlannotator.core.model.TextStyler
 import com.ravenl.htmlannotator.view.HtmlSpanner.Companion.logger
-import com.ravenl.htmlannotator.view.styler.SpannedStyler
+import com.ravenl.htmlannotator.view.styler.SpanStyler
 
 open class ColorCssSpannedHandler : CSSSpannedHandler() {
 
-    override fun addCssStyler(
-        rangeList: MutableList<SpannedStyler>,
-        start: Int,
-        end: Int,
-        value: String
-    ) {
+    override fun addStyle(list: MutableList<TextStyler>, value: String) {
         parseColor(value)?.also { color ->
-            rangeList.add(SpannedStyler(start, end, ForegroundColorSpan(color)))
+            list.add(SpanStyler(ForegroundColorSpan(color)))
         }
     }
 
