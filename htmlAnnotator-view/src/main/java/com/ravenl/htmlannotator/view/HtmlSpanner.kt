@@ -20,6 +20,7 @@ import com.fleeksoft.ksoup.Ksoup
 import com.fleeksoft.ksoup.nodes.Document
 import com.ravenl.htmlannotator.core.handler.TagHandler
 import com.ravenl.htmlannotator.core.model.HtmlNode
+import com.ravenl.htmlannotator.core.model.NodeProcessor
 import com.ravenl.htmlannotator.core.model.StringNode
 import com.ravenl.htmlannotator.core.model.StyleNode
 import com.ravenl.htmlannotator.core.toHtmlNode
@@ -40,12 +41,11 @@ import com.ravenl.htmlannotator.view.handler.MultipleSpanHandler
 import com.ravenl.htmlannotator.view.handler.ParagraphHandler
 import com.ravenl.htmlannotator.view.handler.PreSpannedHandler
 import com.ravenl.htmlannotator.view.handler.SingleSpanHandler
+import com.ravenl.htmlannotator.view.processor.ParagraphNodeProcessor
 import com.ravenl.htmlannotator.view.styler.IAfterChildrenSpannedStyler
 import com.ravenl.htmlannotator.view.styler.IAtChildrenAfterSpannedStyler
 import com.ravenl.htmlannotator.view.styler.IAtChildrenBeforeSpannedStyler
 import com.ravenl.htmlannotator.view.styler.IBeforeChildrenSpannedStyler
-import com.ravenl.htmlannotator.view.styler.ParagraphEndStyler
-import com.ravenl.htmlannotator.view.styler.ParagraphStartStyler
 import com.ravenl.htmlannotator.view.styler.SpanStyler
 import com.ravenl.htmlannotator.view.styler.SpannedStyler
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +55,7 @@ import kotlinx.coroutines.yield
 class HtmlSpanner(
     preTagHandlers: Map<String, TagHandler>? = defaultPreTagHandlers,
     preCSSHandlers: Map<String, CSSSpannedHandler>? = defaultPreCSSHandlers,
+    val nodeProcessors: List<NodeProcessor> = preNodeProcessors
 ) {
 
     private val handlers: MutableMap<String, TagHandler>
@@ -102,60 +103,11 @@ class HtmlSpanner(
     ): Spannable = withContext(Dispatchers.Default) {
         val root = toHtmlNode(doc, handlers, cssHandlers, logger, getExternalCSS)
         SpannableStringBuilder().apply {
-            handleNodeParagraph(root)
+            nodeProcessors.forEach { processor ->
+                processor.processNode(root)
+            }
 
             handleNode(root)
-        }
-    }
-
-    private suspend fun handleNodeParagraph(node: HtmlNode) {
-        yield()
-        when (node) {
-            is StringNode -> {
-                return
-            }
-            is StyleNode -> {
-                val children = node.children
-                if (children.isNullOrEmpty()) {
-                    return
-                }
-
-                for (i in children.indices) {
-                    val currentNode = children[i]
-
-                    if (currentNode !is StyleNode) continue
-                    val currentStylers = currentNode.stylers ?: continue
-                    val previousNode = if (i > 0) {
-                        children[i - 1] as? StyleNode
-                    } else {
-                        null
-                    }
-
-                    fun isPreviousNodeHadEnd(extraLine: Boolean) =
-                        previousNode?.stylers?.any { it is ParagraphEndStyler && it.extraLine == extraLine }
-
-                    val isPreviousNodeHadEndWithExtraLine = isPreviousNodeHadEnd(true) == true
-                    val isPreviousNodeHadEndNoExtraLine = isPreviousNodeHadEnd(false) == true
-
-                    if (isPreviousNodeHadEndWithExtraLine
-                        || isPreviousNodeHadEndNoExtraLine && currentStylers.any { it is ParagraphStartStyler && !it.extraLine }
-                    ) {
-                        currentStylers.removeAll { it is ParagraphStartStyler }
-                    }
-                    if (isPreviousNodeHadEndNoExtraLine) {
-                        for (index in currentStylers.indices) {
-                            val styler = currentStylers[index]
-                            if (styler is ParagraphStartStyler && styler.extraLine) {
-                                currentStylers[index] = ParagraphStartStyler(false)
-                            }
-                        }
-                    }
-
-                    // Recursively handle children of the current node
-                    handleNodeParagraph(currentNode)
-                }
-
-            }
         }
     }
 
@@ -341,5 +293,6 @@ class HtmlSpanner(
         var logger: Logger = defaultLogger()
         var defaultPreTagHandlers: Map<String, TagHandler>? = null
         var defaultPreCSSHandlers: Map<String, CSSSpannedHandler>? = null
+        var preNodeProcessors: List<NodeProcessor> = listOf(ParagraphNodeProcessor)
     }
 }
