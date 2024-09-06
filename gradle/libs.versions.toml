@@ -6,15 +6,15 @@ android-minComposeSdk = "21"
 android-targetSdk = "34"
 
 androidx-activityCompose = "1.9.1"
-compose-plugin = "1.6.10"
-kotlin = "2.0.0"
-kotlinxCoroutinesCore = "1.9.0-RC"
-kotlinx-immutableCollections = "0.3.7"
-ksoup = "0.1.2"
-annotationJvm = "1.8.1"
-mavenpublish = "0.28.0"
+compose-plugin = "1.6.11"
+kotlin = "2.0.20"
+kotlinxCoroutinesCore = "1.9.0-RC.2"
+kotlinx-immutableCollections = "0.3.8"
+ksoup = "0.1.6"
+annotationJvm = "1.8.2"
+mavenpublish = "0.29.0"
 lifecycleCommon = "2.8.4"
-sketchCompose = "4.0.0-alpha04"
+sketchCompose = "4.0.0-alpha08"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
