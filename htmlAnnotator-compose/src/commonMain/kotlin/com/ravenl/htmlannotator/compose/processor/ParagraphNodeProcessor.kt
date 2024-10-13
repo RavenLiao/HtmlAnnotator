@@ -7,12 +7,13 @@ import com.ravenl.htmlannotator.core.model.HtmlNode
 import com.ravenl.htmlannotator.core.model.NodeProcessor
 import com.ravenl.htmlannotator.core.model.StringNode
 import com.ravenl.htmlannotator.core.model.StyleNode
-import kotlinx.coroutines.yield
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 
 object ParagraphNodeProcessor : NodeProcessor {
 
     override suspend fun processNode(node: HtmlNode) {
-        yield()
+        currentCoroutineContext().ensureActive()
         when (node) {
             is StringNode -> {
                 return

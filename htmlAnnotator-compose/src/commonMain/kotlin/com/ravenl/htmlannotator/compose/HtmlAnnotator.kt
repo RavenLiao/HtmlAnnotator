@@ -52,8 +52,9 @@ import com.ravenl.htmlannotator.core.toHtmlNode
 import com.ravenl.htmlannotator.core.util.Logger
 import com.ravenl.htmlannotator.core.util.defaultLogger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 
 class HtmlAnnotator(
     preTagHandlers: Map<String, TagHandler>? = defaultPreTagHandlers,
@@ -116,7 +117,7 @@ class HtmlAnnotator(
         node: HtmlNode,
         paragraphIntervalList: ArrayList<ParagraphInterval>
     ) {
-        yield()
+        currentCoroutineContext().ensureActive()
         when (node) {
             is StringNode -> {
                 append(node.string)

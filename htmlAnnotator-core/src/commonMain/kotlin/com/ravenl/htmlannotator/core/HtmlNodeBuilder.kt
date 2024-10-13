@@ -21,8 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 
 private const val TAG = "HtmlAnnotationBuilder"
 
@@ -34,13 +34,14 @@ suspend fun toHtmlNode(
     getExternalCSS: (suspend (link: String) -> String)?
 ): HtmlNode = withContext(Dispatchers.Default) {
     val body = doc.body()
-    yield()
-    val internalCSS = buildInternalCSSBlock(doc)
-    yield()
-    val externalCss = getExternalCSS?.let { get ->
-        buildExternalCSSBlock(get, doc)
+    ensureActive()
+    val externalCssJob = async {
+        getExternalCSS?.let { get ->
+            buildExternalCSSBlock(get, doc)
+        }
     }
-    yield()
+    val internalCSS = buildInternalCSSBlock(doc)
+    val externalCss = externalCssJob.await()
     val cssMap = if (internalCSS != null || externalCss != null) {
         val map = mutableMapOf<Element, MutableList<CSSRuleSet>>()
         fun List<CSSRuleSet>.putToCssMap() {
@@ -56,14 +57,14 @@ suspend fun toHtmlNode(
         }
         internalCSS?.putToCssMap()
         externalCss?.putToCssMap()
-        yield()
+        ensureActive()
         map
     } else {
         null
     }
 
-    suspend fun handleNode(node: Node): HtmlNode {
-        yield()
+    fun handleNode(node: Node): HtmlNode {
+        ensureActive()
         if (node is TextNode) {
             return StringNode(node.text())
         }
